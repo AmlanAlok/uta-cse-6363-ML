@@ -64,7 +64,8 @@ def get_knn(input_data, test_input, k):
 
         a[i] = {
             'index': dp['index'],
-            'cartesian_distance': cartesian_distance
+            'cartesian_distance': cartesian_distance,
+            'output': dp['output']
         }
 
         i += 1
@@ -74,19 +75,6 @@ def get_knn(input_data, test_input, k):
     print(sorted_a)
 
     return sorted_a[:k]
-
-        # if a[0] is None:
-        #     a[0] = {
-        #         'index': dp['index'],
-        #         'cartesian_distance': cartesian_distance
-        #     }
-        # else:
-        #     if cartesian_distance > a[0]['cartesian_distance']:
-        #         for i in range(k):
-        #             a[k-1] == a[k-2]
-
-
-
 
 
 filename = 'data/Q2_A.txt'
@@ -115,8 +103,29 @@ test_input_record = {
 
 knn_array = get_knn(input_data, test_input_record, k)
 
+W_count = 0
+M_count = 0
 
+for dic in knn_array:
+    if dic['output'] == 'W':
+        W_count += 1
+    if dic['output'] == 'M':
+        M_count += 1
 
+W_prob = W_count/k
+M_prob = M_count/k
+
+print('W prob =', W_prob)
+print('M_prob =', M_prob)
+
+if W_count > M_count:
+    test_input_record['prediction'] = 'W'
+elif M_count > W_count:
+    test_input_record['prediction'] = 'M'
+else:
+    test_input_record['prediction'] = '50-50'
+
+print('prediction =', test_input_record['prediction'])
 
 
 print('End')
