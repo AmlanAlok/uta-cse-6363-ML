@@ -70,7 +70,7 @@ def get_knn(input_data, test_input, k):
 
         i += 1
 
-    sorted_a = sorted(a, key=lambda d:d['cartesian_distance'], reverse=True)
+    sorted_a = sorted(a, key=lambda d:d['cartesian_distance'])
 
     print(sorted_a)
 
@@ -88,7 +88,7 @@ user_input = '( 1.7512428413306, 73.58553700624, 34)'
 user_input = clean_data(user_input)
 print(user_input)
 
-k = 2
+k = 3
 
 test_input_record = {
     'input': {
