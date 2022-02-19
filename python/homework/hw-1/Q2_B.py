@@ -49,7 +49,7 @@ def change_data_structure(input_data):
     return data_list
 
 
-def get_knn(input_data, test_input, k):
+def get_distance(input_data, test_input):
 
     print('inside func ' + inspect.stack()[0][3])
 
@@ -74,10 +74,52 @@ def get_knn(input_data, test_input, k):
 
     print(sorted_a)
 
-    return sorted_a[:k]
+    return sorted_a
+
+
+def make_prediction(k_list, distance_array, test_input_record):
+
+    for k in k_list:
+
+        print('Executing for k =', k)
+        w_count = 0
+        m_count = 0
+
+        knn_array = distance_array[:k]
+
+        for dic in knn_array:
+            if dic['output'] == 'W':
+                w_count += 1
+            if dic['output'] == 'M':
+                m_count += 1
+
+        W_prob = w_count / k
+        M_prob = m_count / k
+
+        print('W prob =', W_prob)
+        print('M_prob =', M_prob)
+
+        k_dict = {
+            'k': k,
+            'prediction': ''
+        }
+
+        if w_count > m_count:
+            k_dict[CONST_PREDICTION] = 'W'
+        elif m_count > w_count:
+            k_dict[CONST_PREDICTION] = 'M'
+        else:
+            k_dict[CONST_PREDICTION] = '50-50 M/W'
+
+        test_input_record['output'].append(k_dict)
+        print('prediction =', k_dict)
+
+        return test_input_record
 
 
 filename = 'data/Q2_A.txt'
+
+CONST_PREDICTION = 'prediction'
 
 input_data = fetch_data(filename)
 input_data = change_data_structure(input_data)
@@ -88,7 +130,7 @@ user_input = '( 1.7512428413306, 73.58553700624, 34)'
 user_input = clean_data(user_input)
 print(user_input)
 
-k = 3
+k_list = [1,3,5]
 
 test_input_record = {
     'input': {
@@ -96,37 +138,14 @@ test_input_record = {
         'weight': float(user_input[1]),
         'age': int(user_input[2])
     },
-    'knn': [],
-    'prediction': ''
+    'knn': k_list,
+    'output': []
 }
 
 
-knn_array = get_knn(input_data, test_input_record, k)
+distance_array = get_distance(input_data, test_input_record)
 
-W_count = 0
-M_count = 0
-
-for dic in knn_array:
-    if dic['output'] == 'W':
-        W_count += 1
-    if dic['output'] == 'M':
-        M_count += 1
-
-W_prob = W_count/k
-M_prob = M_count/k
-
-print('W prob =', W_prob)
-print('M_prob =', M_prob)
-
-if W_count > M_count:
-    test_input_record['prediction'] = 'W'
-elif M_count > W_count:
-    test_input_record['prediction'] = 'M'
-else:
-    test_input_record['prediction'] = '50-50'
-
-print('prediction =', test_input_record['prediction'])
-
+test_input_record = make_prediction(k_list, distance_array, test_input_record)
 
 print('End')
 
