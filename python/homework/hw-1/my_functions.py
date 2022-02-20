@@ -10,12 +10,8 @@ def result_accuracy(result, k_list):
 
     for k in k_list:
 
-        acc = 0
-        r_sum = 0
-
-        for i in result[k]['result']:
-            r_sum += i
-        acc = (r_sum/ len(result[k]['result'])) * 100
+        print('Accuracy = ', sum(result[k]['result']), '/', len(result[k]['result']), ' * ', 100)
+        acc = (sum(result[k]['result']) / len(result[k]['result'])) * 100
         result[k]['prediction_accuracy'] = acc
 
         print(result[k])
@@ -23,7 +19,7 @@ def result_accuracy(result, k_list):
     return result
 
 
-def leave_one_out(input_data, k_list):
+def leave_one_out(input_data, k_list, exclude_age=False):
     print('inside func ' + inspect.stack()[0][3])
 
     # result = [None] * len(k_list)
@@ -44,10 +40,17 @@ def leave_one_out(input_data, k_list):
         for dp in input_data:
 
             if left_out_dp['index'] != dp['index']:
-                cartesian_distance = math.sqrt(
-                    pow(dp['input']['height'] - left_out_dp['input']['height'], 2) +
-                    pow(dp['input']['weight'] - left_out_dp['input']['weight'], 2) +
-                    pow(dp['input']['age'] - left_out_dp['input']['age'], 2))
+                if exclude_age:
+                    cartesian_distance = math.sqrt(
+                        pow(dp['input']['height'] - left_out_dp['input']['height'], 2) +
+                        pow(dp['input']['weight'] - left_out_dp['input']['weight'], 2)
+                    )
+                else:
+                    cartesian_distance = math.sqrt(
+                        pow(dp['input']['height'] - left_out_dp['input']['height'], 2) +
+                        pow(dp['input']['weight'] - left_out_dp['input']['weight'], 2) +
+                        pow(dp['input']['age'] - left_out_dp['input']['age'], 2)
+                    )
 
                 a[i] = {
                     'index': dp['index'],
@@ -92,13 +95,6 @@ def leave_one_out(input_data, k_list):
                 k_dict[k]['result'][left_out_dp['index']] = 0
 
     return k_dict
-
-
-
-
-
-
-
 
 
 def clean_data(line):
