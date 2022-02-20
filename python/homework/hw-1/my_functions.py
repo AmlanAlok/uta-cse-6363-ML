@@ -32,8 +32,8 @@ def leave_one_out(input_data, k_list):
     for k in k_list:
         k_dict[k] = {
             'k_value': k,
-            'result': [None] * len(input_data),
-            'prediction_accuracy': 0
+            'prediction_accuracy': 0,
+            'result': [None] * len(input_data)
         }
 
     for left_out_dp in input_data:
@@ -74,8 +74,8 @@ def leave_one_out(input_data, k_list):
             w_prob = w_count / k
             m_prob = m_count / k
 
-            print('W prob =', w_prob)
-            print('M prob =', m_prob)
+            # print('W prob =', w_prob)
+            # print('M prob =', m_prob)
 
             prediction = ''
 
