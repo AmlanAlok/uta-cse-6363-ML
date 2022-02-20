@@ -4,7 +4,101 @@ import math
 CONST_PREDICTION = 'prediction'
 
 
-def leave_one_out(input_data):
+def result_accuracy(result, k_list):
+
+    print('inside func ' + inspect.stack()[0][3])
+
+    for k in k_list:
+
+        acc = 0
+        r_sum = 0
+
+        for i in result[k]['result']:
+            r_sum += i
+        acc = (r_sum/ len(result[k]['result'])) * 100
+        result[k]['prediction_accuracy'] = acc
+
+        print(result[k])
+
+    return result
+
+
+def leave_one_out(input_data, k_list):
+    print('inside func ' + inspect.stack()[0][3])
+
+    # result = [None] * len(k_list)
+    k_dict = {}
+
+    for k in k_list:
+        k_dict[k] = {
+            'k_value': k,
+            'result': [None] * len(input_data),
+            'prediction_accuracy': 0
+        }
+
+    for left_out_dp in input_data:
+
+        a = [None] * (len(input_data)-1)
+        i = 0
+
+        for dp in input_data:
+
+            if left_out_dp['index'] != dp['index']:
+                cartesian_distance = math.sqrt(
+                    pow(dp['input']['height'] - left_out_dp['input']['height'], 2) +
+                    pow(dp['input']['weight'] - left_out_dp['input']['weight'], 2) +
+                    pow(dp['input']['age'] - left_out_dp['input']['age'], 2))
+
+                a[i] = {
+                    'index': dp['index'],
+                    'cartesian_distance': cartesian_distance,
+                    'output': dp['output']
+                }
+
+                i += 1
+
+        sorted_a = sorted(a, key=lambda d: d['cartesian_distance'])
+
+        for k in k_list:
+
+            knn_array = sorted_a[:k]
+            w_count = 0
+            m_count = 0
+
+            for dic in knn_array:
+                if dic['output'] == 'W':
+                    w_count += 1
+                if dic['output'] == 'M':
+                    m_count += 1
+
+            w_prob = w_count / k
+            m_prob = m_count / k
+
+            print('W prob =', w_prob)
+            print('M prob =', m_prob)
+
+            prediction = ''
+
+            if w_count > m_count:
+                prediction = 'W'
+            elif m_count > w_count:
+                prediction = 'M'
+            else:
+                prediction = '50-50 M/W'
+
+            if prediction == left_out_dp['output']:
+                k_dict[k]['result'][left_out_dp['index']] = 1
+            else:
+                k_dict[k]['result'][left_out_dp['index']] = 0
+
+    return k_dict
+
+
+
+
+
+
+
 
 
 def clean_data(line):
@@ -72,7 +166,7 @@ def get_distance(input_data, test_input):
 
         i += 1
 
-    sorted_a = sorted(a, key=lambda d:d['cartesian_distance'])
+    sorted_a = sorted(a, key=lambda d: d['cartesian_distance'])
 
     print(sorted_a)
 
