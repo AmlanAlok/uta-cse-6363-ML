@@ -1,4 +1,4 @@
-from my_functions import *
+from Q2_my_functions import *
 
 filename = 'data/Q2_A.txt'
 

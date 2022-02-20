@@ -22,7 +22,6 @@ def result_accuracy(result, k_list):
 def leave_one_out(input_data, k_list, exclude_age=False):
     print('inside func ' + inspect.stack()[0][3])
 
-    # result = [None] * len(k_list)
     k_dict = {}
 
     for k in k_list:
