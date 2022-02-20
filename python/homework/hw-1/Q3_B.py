@@ -17,6 +17,6 @@ test_input_record = {
     'output': []
 }
 
-result = gaussian_naive_bayes(input_data, test_input_record)
+result = gaussian_naive_bayes_2(input_data, test_input_record)
 
 print('END')
