@@ -1,5 +1,5 @@
 import math
-
+import inspect
 
 OUTPUT = 'output'
 INPUT = 'input'
@@ -26,81 +26,59 @@ def gaussian_formula(mean, var, test_parameter):
     pi = math.pi
     e = math.e
     r = (1/math.sqrt(2*pi*var)) * pow(e, (-1*pow(test_parameter-mean, 2))/(2*var))
-    print('gaussian output =', r)
+    # print('gaussian output =', r)
     return r
 
 
+def leave_one_out(input_data, exclude_age=False):
+    print('inside func ' + inspect.stack()[0][3])
+
+    result_dict = {
+        'accuracy': '',
+        'result': [None] * len(input_data)
+    }
+
+    for left_out_dp in input_data:
+
+        input_dict = {}
+
+        for dp in input_data:
+
+            if dp['index'] != left_out_dp['index']:
+                if dp[OUTPUT] in input_dict:
+                    input_dict[dp[OUTPUT]][COUNT] += 1
+                else:
+                    input_dict[dp[OUTPUT]] = {
+                        COUNT: 1, CLASS_PROBABILITY: 0,
+                        HEIGHT_TOTAL: 0, HEIGHT_MEAN: 0, HEIGHT_VAR: 0, HEIGHT_MEAN_SQR_TOTAL: 0,
+                        WEIGHT_TOTAL: 0, WEIGHT_MEAN: 0, WEIGHT_VAR: 0, WEIGHT_MEAN_SQR_TOTAL: 0,
+                        AGE_TOTAL: 0, AGE_MEAN: 0, AGE_VAR: 0, AGE_MEAN_SQR_TOTAL: 0,
+                    }
+
+        test_input_record = {
+            'input': {
+                'height': float(left_out_dp[INPUT][HEIGHT]),
+                'weight': float(left_out_dp[INPUT][WEIGHT]),
+                'age': int(left_out_dp[INPUT][AGE])
+            },
+            'output': left_out_dp[OUTPUT]
+        }
+
+        test_input_record = get_prediction(input_data, input_dict, test_input_record)
+
+        if test_input_record[OUTPUT] == test_input_record['prediction']:
+            result_dict['result'][left_out_dp['index']] = 1
+        else:
+            result_dict['result'][left_out_dp['index']] = 0
+
+    result_dict['accuracy'] = (sum(result_dict['result'])/ len(result_dict['result'])) * 100
+
+
+    print('END')
+
+
+
 def gaussian_naive_bayes(input_data, test_input):
-
-    result_store = {}
-    w_count = 0
-    m_count = 0
-    height_w_total = 0
-    height_m_total = 0
-    weight_w_total = 0
-    weight_m_total = 0
-    age_w_total, age_m_total = 0, 0
-
-    for dp in input_data:
-
-        if dp['output'] == 'M':
-            m_count += 1
-            height_m_total += dp['input']['height']
-            weight_m_total += dp['input']['weight']
-            age_m_total += dp['input']['age']
-        elif dp['output'] == 'W':
-            w_count += 1
-            height_w_total += dp['input']['height']
-            weight_w_total += dp['input']['weight']
-            age_w_total += dp['input']['age']
-
-    result_store['M'] = {
-        'count': m_count,
-        'height_total': height_m_total,
-        'weight_total': weight_m_total,
-        'age_total': age_m_total,
-        'height_mean': height_m_total/ m_count,
-        'weight_mean': weight_m_total/ m_count,
-        'age_mean': age_m_total/ m_count
-    }
-
-    result_store['W'] = {
-        'count': w_count,
-        'height_total': height_w_total,
-        'weight_total': weight_w_total,
-        'age_total': age_w_total,
-        'height_mean': height_w_total / w_count,
-        'weight_mean': weight_w_total / w_count,
-        'age_mean': age_w_total / w_count
-    }
-
-    height_m_diff_mean_square_total, height_w_diff_mean_square_total = 0, 0
-
-    for dp in input_data:
-
-        if dp['output'] == 'M':
-            height_m_diff_mean_square_total += pow(dp['input']['height'] - result_store[dp['output']]['height_mean'], 2)
-        elif dp['output'] == 'W':
-            height_w_diff_mean_square_total += pow(dp['input']['height'] - result_store[dp['output']]['height_mean'], 2)
-
-    result_store['M']['height_variance'] = height_m_diff_mean_square_total/ (result_store['M']['count']-1)
-    result_store['W']['height_variance'] = height_w_diff_mean_square_total / (result_store['W']['count']-1)
-
-    result_store['M']['probability'] = result_store['M']['count'] / (result_store['M']['count'] + result_store['W']['count'])
-    result_store['W']['probability'] = result_store['W']['count'] / (result_store['M']['count'] + result_store['W']['count'])
-
-    height_m_estimate = result_store['M']['probability'] * gaussian_formula(
-        result_store['M']['height_mean'],
-        result_store['M']['height_variance'],
-        test_input['input']['height']
-    )
-
-    print('height_m_estimate =', height_m_estimate)
-
-    print('ending')
-
-
-def gaussian_naive_bayes_2(input_data, test_input):
 
     input_dict = {}
 
@@ -115,8 +93,12 @@ def gaussian_naive_bayes_2(input_data, test_input):
                 AGE_TOTAL: 0, AGE_MEAN: 0, AGE_VAR: 0, AGE_MEAN_SQR_TOTAL: 0,
             }
 
+    return get_prediction(input_data, input_dict, test_input)
+
+
+def get_prediction(input_data, input_dict, test_input):
+
     output_labels = input_dict.keys()
-    a = type(output_labels)
 
     ''' totaling all features '''
     for dp in input_data:
@@ -126,9 +108,9 @@ def gaussian_naive_bayes_2(input_data, test_input):
 
     ''' Calculating Mean and Class Probability'''
     for label in output_labels:
-        input_dict[label][HEIGHT_MEAN] = input_dict[label][HEIGHT_TOTAL]/ input_dict[label][COUNT]
+        input_dict[label][HEIGHT_MEAN] = input_dict[label][HEIGHT_TOTAL] / input_dict[label][COUNT]
         input_dict[label][WEIGHT_MEAN] = input_dict[label][WEIGHT_TOTAL] / input_dict[label][COUNT]
-        input_dict[label][AGE_MEAN] = input_dict[label][AGE_TOTAL]/ input_dict[label][COUNT]
+        input_dict[label][AGE_MEAN] = input_dict[label][AGE_TOTAL] / input_dict[label][COUNT]
         input_dict[label][CLASS_PROBABILITY] = input_dict[label][COUNT] / len(input_data)
 
     ''' Calculating SQR of difference from Mean for each data point'''
@@ -139,33 +121,32 @@ def gaussian_naive_bayes_2(input_data, test_input):
 
     ''' Calculating Variance '''
     for label in output_labels:
-        input_dict[label][HEIGHT_VAR] = input_dict[label][HEIGHT_MEAN_SQR_TOTAL] / (input_dict[label][COUNT]-1)
+        input_dict[label][HEIGHT_VAR] = input_dict[label][HEIGHT_MEAN_SQR_TOTAL] / (input_dict[label][COUNT] - 1)
         input_dict[label][WEIGHT_VAR] = input_dict[label][WEIGHT_MEAN_SQR_TOTAL] / (input_dict[label][COUNT] - 1)
         input_dict[label][AGE_VAR] = input_dict[label][AGE_MEAN_SQR_TOTAL] / (input_dict[label][COUNT] - 1)
 
     test_input['probability'] = {}
-    prediction = ''
     max_probability = 0.0
 
     for label in output_labels:
         test_input['probability'][label] = {
-            'P(height|C)': gaussian_formula(mean=input_dict[label][HEIGHT_MEAN], var=input_dict[label][HEIGHT_VAR], test_parameter=test_input[INPUT][HEIGHT]),
-            'P(weight|C)': gaussian_formula(mean=input_dict[label][WEIGHT_MEAN], var=input_dict[label][WEIGHT_VAR], test_parameter=test_input[INPUT][WEIGHT]),
-            'P(age|C)': gaussian_formula(mean=input_dict[label][AGE_MEAN], var=input_dict[label][AGE_VAR], test_parameter=test_input[INPUT][AGE])
+            'P(height|C)': gaussian_formula(mean=input_dict[label][HEIGHT_MEAN], var=input_dict[label][HEIGHT_VAR],
+                                            test_parameter=test_input[INPUT][HEIGHT]),
+            'P(weight|C)': gaussian_formula(mean=input_dict[label][WEIGHT_MEAN], var=input_dict[label][WEIGHT_VAR],
+                                            test_parameter=test_input[INPUT][WEIGHT]),
+            'P(age|C)': gaussian_formula(mean=input_dict[label][AGE_MEAN], var=input_dict[label][AGE_VAR],
+                                         test_parameter=test_input[INPUT][AGE])
         }
 
-        test_input['probability'][label]['final_estimate'] = input_dict[label][CLASS_PROBABILITY]*\
-                                                             test_input['probability'][label]['P(height|C)']*\
-                                                             test_input['probability'][label]['P(weight|C)']*\
+        test_input['probability'][label]['final_estimate'] = input_dict[label][CLASS_PROBABILITY] * \
+                                                             test_input['probability'][label]['P(height|C)'] * \
+                                                             test_input['probability'][label]['P(weight|C)'] * \
                                                              test_input['probability'][label]['P(age|C)']
+
+        print('For', label, 'Final Estimate =', test_input['probability'][label]['final_estimate'])
 
         if test_input['probability'][label]['final_estimate'] > max_probability:
             max_probability = test_input['probability'][label]['final_estimate']
             test_input['prediction'] = label
 
     return test_input
-
-
-
-
-    print('ending')
