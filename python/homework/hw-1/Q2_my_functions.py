@@ -101,12 +101,12 @@ def clean_data(line):
 
 
 def fetch_data(filename):
-    print('inside func '+ inspect.stack()[0][3])
+    # print('inside func '+ inspect.stack()[0][3])
 
     with open(filename, 'r') as f:
         input_data = f.readlines()
         # print(type(input_data ))
-        print('Number of data points =', len(input_data ))
+        # print('Number of data points =', len(input_data ))
 
         clean_input = list(map(clean_data, input_data))
         f.close()
@@ -117,7 +117,7 @@ def fetch_data(filename):
 
 def change_data_structure(input_data):
 
-    print('inside func ' + inspect.stack()[0][3])
+    # print('inside func ' + inspect.stack()[0][3])
 
     data_list = [None] * len(input_data)
     i = 0
@@ -142,7 +142,7 @@ def change_data_structure(input_data):
 
 def get_distance(input_data, test_input):
 
-    print('inside func ' + inspect.stack()[0][3])
+    # print('inside func ' + inspect.stack()[0][3])
 
     a = [None]*len(input_data)
     i = 0
@@ -160,6 +160,10 @@ def get_distance(input_data, test_input):
         }
 
         i += 1
+
+        # print('sqrt((', dp['input']['height'] ,'-', test_input['input']['height'], ')^2 +'+
+        #     '(', dp['input']['weight'] ,'-', test_input['input']['weight'], ')^2 +'+
+        #     '(', dp['input']['age'] ,'-', test_input['input']['age'], ')^2) =', cartesian_distance)
 
     sorted_a = sorted(a, key=lambda d: d['cartesian_distance'])
 
