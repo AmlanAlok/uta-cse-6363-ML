@@ -34,6 +34,7 @@ def leave_one_out(input_data, exclude_age=False):
     print('inside func ' + inspect.stack()[0][3])
 
     result_dict = {
+        'exclude_age': exclude_age,
         'accuracy': '',
         'result': [None] * len(input_data)
     }
@@ -64,7 +65,7 @@ def leave_one_out(input_data, exclude_age=False):
             'output': left_out_dp[OUTPUT]
         }
 
-        test_input_record = get_prediction(input_data, input_dict, test_input_record)
+        test_input_record = get_prediction(input_data, input_dict, test_input_record, exclude_age)
 
         if test_input_record[OUTPUT] == test_input_record['prediction']:
             result_dict['result'][left_out_dp['index']] = 1
@@ -73,12 +74,10 @@ def leave_one_out(input_data, exclude_age=False):
 
     result_dict['accuracy'] = (sum(result_dict['result'])/ len(result_dict['result'])) * 100
 
-
-    print('END')
-
+    return result_dict
 
 
-def gaussian_naive_bayes(input_data, test_input):
+def gaussian_naive_bayes(input_data, test_input, exclude_age=False):
 
     input_dict = {}
 
@@ -96,7 +95,7 @@ def gaussian_naive_bayes(input_data, test_input):
     return get_prediction(input_data, input_dict, test_input)
 
 
-def get_prediction(input_data, input_dict, test_input):
+def get_prediction(input_data, input_dict, test_input, exclude_age=False):
 
     output_labels = input_dict.keys()
 
@@ -113,7 +112,7 @@ def get_prediction(input_data, input_dict, test_input):
         input_dict[label][AGE_MEAN] = input_dict[label][AGE_TOTAL] / input_dict[label][COUNT]
         input_dict[label][CLASS_PROBABILITY] = input_dict[label][COUNT] / len(input_data)
 
-    ''' Calculating SQR of difference from Mean for each data point'''
+    ''' Calculating square of difference from Mean for each data point'''
     for dp in input_data:
         input_dict[dp[OUTPUT]][HEIGHT_MEAN_SQR_TOTAL] += pow(dp[INPUT][HEIGHT] - input_dict[dp[OUTPUT]][HEIGHT_MEAN], 2)
         input_dict[dp[OUTPUT]][WEIGHT_MEAN_SQR_TOTAL] += pow(dp[INPUT][WEIGHT] - input_dict[dp[OUTPUT]][WEIGHT_MEAN], 2)
@@ -138,12 +137,17 @@ def get_prediction(input_data, input_dict, test_input):
                                          test_parameter=test_input[INPUT][AGE])
         }
 
-        test_input['probability'][label]['final_estimate'] = input_dict[label][CLASS_PROBABILITY] * \
-                                                             test_input['probability'][label]['P(height|C)'] * \
-                                                             test_input['probability'][label]['P(weight|C)'] * \
-                                                             test_input['probability'][label]['P(age|C)']
+        if exclude_age:
+            test_input['probability'][label]['final_estimate'] = input_dict[label][CLASS_PROBABILITY] * \
+                                                                 test_input['probability'][label]['P(height|C)'] * \
+                                                                 test_input['probability'][label]['P(weight|C)']
+        else:
+            test_input['probability'][label]['final_estimate'] = input_dict[label][CLASS_PROBABILITY] * \
+                                                                 test_input['probability'][label]['P(height|C)'] * \
+                                                                 test_input['probability'][label]['P(weight|C)'] * \
+                                                                 test_input['probability'][label]['P(age|C)']
 
-        print('For', label, 'Final Estimate =', test_input['probability'][label]['final_estimate'])
+        # print('For', label, 'Final Estimate =', test_input['probability'][label]['final_estimate'])
 
         if test_input['probability'][label]['final_estimate'] > max_probability:
             max_probability = test_input['probability'][label]['final_estimate']

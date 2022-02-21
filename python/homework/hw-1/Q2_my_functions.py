@@ -105,8 +105,8 @@ def fetch_data(filename):
 
     with open(filename, 'r') as f:
         input_data = f.readlines()
-        print(type(input_data ))
-        print(len(input_data ))
+        # print(type(input_data ))
+        print('Number of data points =', len(input_data ))
 
         clean_input = list(map(clean_data, input_data))
         f.close()
