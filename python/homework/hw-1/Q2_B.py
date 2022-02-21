@@ -1,6 +1,6 @@
 from Q2_my_functions import *
 
-filename = 'data/Q2_A.txt'
+filename = 'python/homework/hw-1/data/Q2_A.txt'
 
 input_data = fetch_data(filename)
 # input_data = change_data_structure(input_data)
@@ -22,7 +22,6 @@ test_input_record = {
     'knn': k_list,
     'output': []
 }
-
 
 distance_array = get_distance(input_data, test_input_record)
 

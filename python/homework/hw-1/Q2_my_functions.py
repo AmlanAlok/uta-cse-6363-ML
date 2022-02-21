@@ -12,7 +12,7 @@ def result_accuracy(result, k_list):
 
         print('Accuracy = ', sum(result[k]['result']), '/', len(result[k]['result']), ' * ', 100)
         acc = (sum(result[k]['result']) / len(result[k]['result'])) * 100
-        result[k]['prediction_accuracy'] = acc
+        result[k]['prediction_accuracy_percent'] = acc
 
         print(result[k])
 
@@ -27,7 +27,7 @@ def leave_one_out(input_data, k_list, exclude_age=False):
     for k in k_list:
         k_dict[k] = {
             'k_value': k,
-            'prediction_accuracy': 0,
+            'prediction_accuracy_percent': 0,
             'result': [None] * len(input_data)
         }
 

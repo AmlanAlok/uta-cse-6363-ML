@@ -1,7 +1,7 @@
 from Q2_my_functions import *
 from Q3_my_functions import *
 
-filename = 'data/Q2_A.txt'
+filename = 'python/homework/hw-1/data/Q2_A.txt'
 input_data = fetch_data(filename)
 
 user_input = '( 1.7512428413306, 73.58553700624, 34)'
