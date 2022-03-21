@@ -1,5 +1,4 @@
 import numpy as np
-import math as m
 import matplotlib.pyplot as plt
 
 
@@ -43,22 +42,40 @@ def get_feature_vector(x_data, k, d):
 
     return p
 
+'''Uses all Data'''
+def separate_input_output(input_data):
 
-def train_linear_regression_model(k, d):
+    td = np.array(input_data, dtype='float64')
+
+    x_data_points = td[:, 0]
+    x_data = x_data_points.reshape(x_data_points.shape[0], 1)
+
+    y_data_points = td[:, 1]
+    y_data = y_data_points.reshape(y_data_points.shape[0], 1)
+
+    return x_data, y_data
+
+'''Uses all Data'''
+def separate_input_output_limit(input_data, limit=129):
+
+    td = np.array(input_data, dtype='float64')
+
+    x_data_points = td[:limit, 0]
+    x_data = x_data_points.reshape(x_data_points.shape[0], 1)
+
+    y_data_points = td[:limit, 1]
+    y_data = y_data_points.reshape(y_data_points.shape[0], 1)
+
+    return x_data, y_data
+
+
+def train_linear_regression_model(k, d, size):
 
     filename = '../datasets/Q1_b_training_data.txt'
     input_data = fetch_data(filename)
 
-    td = np.array(input_data, dtype='float64')
-    del input_data
-
-    x_data_points = td[:, 0]
-    x_data = x_data_points.reshape(x_data_points.shape[0], 1)
-    del x_data_points
-
-    y_data_points = td[:, 1]
-    y_data = y_data_points.reshape(y_data_points.shape[0], 1)
-    del y_data_points
+    # x_data, y_data = separate_input_output(input_data)
+    x_data, y_data = separate_input_output_limit(input_data, size)
 
     feature_matrix = get_feature_vector(x_data, k, d)
 
@@ -70,7 +87,7 @@ def train_linear_regression_model(k, d):
     return parameter_matrix
 
 
-def f(x, parameter_matrix, k, d):
+def prediction(x, parameter_matrix, k, d):
 
     x_data = x.reshape(x.shape[0], 1)
     feature_vector = get_feature_vector(x_data, k, d)
@@ -79,25 +96,56 @@ def f(x, parameter_matrix, k, d):
     return prediction
 
 
+def error_calculation_test_data(parameter_matrix, k, d):
+
+    filename = '../datasets/Q1_c_test_data.txt'
+    test_data = fetch_data(filename)
+
+    x_data, y_true = separate_input_output(test_data)
+
+    y_prediction = prediction(x_data, parameter_matrix, k, d)
+
+    ''' calculating mean square error '''
+    mse = np.square(np.subtract(y_true, y_prediction)).mean()
+
+    return mse
+
+
 def main():
 
     print('program started')
     k = 4
     max_d = 6
     x = np.linspace(-3, 3, 1000)
-    line_names = []
 
-    for d in range(max_d+1):
-        parameter_matrix = train_linear_regression_model(k, d)
-        np.savetxt('./Q1/parameter-d-'+str(d)+'.csv', parameter_matrix, delimiter=',')
+    training_size = [129, 20, 10, 5]   # max = 129
 
-        plt.plot(x, f(x, parameter_matrix, k, d))
-        line_names.append('d='+str(d))
+    for size in training_size:
 
-    # Reading the csv into an array
-    # firstarray = np.genfromtxt("firstarray.csv", delimiter=",")
-    plt.legend(line_names)
-    plt.show()
+        line_names = []
+
+        for d in range(max_d+1):
+
+            parameter_matrix = train_linear_regression_model(k, d, size)
+            '''You can save np array using this function'''
+            # np.savetxt('./Q1/parameter-d-'+str(d)+'.csv', parameter_matrix, delimiter=',')
+
+            ''' plotting graph '''
+            plt.plot(x, prediction(x, parameter_matrix, k, d))
+
+            ''' Error Calculation '''
+            mse = error_calculation_test_data(parameter_matrix, k, d)
+
+            line_names.append('d='+str(d)+', MSE='+str(mse))
+
+        # Reading the csv into an array
+        # firstarray = np.genfromtxt("firstarray.csv", delimiter=",")
+        plt.title('Training Data Size ='+str(size))
+        plt.legend(line_names)
+        plt.savefig('./Q1/Q1-size-'+str(size))
+        # plt.show()
+        # plt.close()
+
     print('program end')
     pass
 
