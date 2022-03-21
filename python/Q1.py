@@ -146,7 +146,7 @@ def main():
         # plt.show()
         # plt.close()
 
-    print('program end')
+    print('program ended')
     pass
 
 
