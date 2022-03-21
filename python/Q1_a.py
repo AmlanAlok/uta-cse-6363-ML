@@ -1,5 +1,7 @@
 import numpy as np
 import math as m
+import matplotlib.pyplot as plt
+
 
 def clean_data(line):
     return line.replace('(', '').replace(')', '').replace(' ', '').strip().split(',')
@@ -68,16 +70,34 @@ def train_linear_regression_model(k, d):
     return parameter_matrix
 
 
+def f(x, parameter_matrix, k, d):
+
+    x_data = x.reshape(x.shape[0], 1)
+    feature_vector = get_feature_vector(x_data, k, d)
+    prediction = np.matmul(feature_vector, parameter_matrix)
+
+    return prediction
+
+
 def main():
 
     print('program started')
     k = 4
     max_d = 6
+    x = np.linspace(-3, 3, 1000)
+    line_names = []
 
     for d in range(max_d+1):
         parameter_matrix = train_linear_regression_model(k, d)
-        np.savetxt('parameter-d-'+str(d)+'.csv', parameter_matrix, delimiter=',')
+        np.savetxt('./Q1/parameter-d-'+str(d)+'.csv', parameter_matrix, delimiter=',')
 
+        plt.plot(x, f(x, parameter_matrix, k, d))
+        line_names.append('d='+str(d))
+
+    # Reading the csv into an array
+    # firstarray = np.genfromtxt("firstarray.csv", delimiter=",")
+    plt.legend(line_names)
+    plt.show()
     print('program end')
     pass
 
