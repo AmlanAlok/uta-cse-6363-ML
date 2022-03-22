@@ -78,7 +78,6 @@ def prediction(parameter_matrix, query_point):
     return ans
 
 
-
 def train_and_prediction(x, gamma, size):
 
     query_point = x
@@ -103,52 +102,57 @@ def train_and_prediction(x, gamma, size):
     return y_prediction[0]
 
 
+def error_calculation_test_data(y_true, y_prediction):
+
+    return np.square(np.subtract(y_true, y_prediction)).mean()
+
+
 def main():
 
     print('program started')
     gamma = 0.112
-    # max_d = 6
-    x = np.linspace(-3, 3, 1000)
+    x_array = np.linspace(-3, 3, 1000)
 
-    training_size = [129]   # max = 129
+    training_size = [20, 129]   # max = 129
 
     filename = '../datasets/Q1_c_test_data.txt'
     test_data = fetch_data(filename)
     x_test, y_true = separate_input_output(test_data)
-    y_prediction = []
+    line_names = []
 
     for size in training_size:
+
+        y_prediction, y_array = [], []
 
         for xi in x_test:
 
             y_prediction.append(train_and_prediction(xi, gamma, size))
 
         y_prediction = np.array(y_prediction)
-        pass
-        # parameter_matrix = train_linear_regression_model(gamma, size)
+
         '''You can save np array using this function'''
         # np.savetxt('./Q1/parameter-d-'+str(d)+'.csv', parameter_matrix, delimiter=',')
 
         ''' plotting graph '''
-        # plt.plot(x, prediction(x, parameter_matrix, k, d))
+        for x in x_array:
+            y_array.append(train_and_prediction(x, gamma, size))
+
+        y_array = np.array(y_array)
+        plt.plot(x_array, y_array)
 
         ''' Error Calculation '''
-        # mse = error_calculation_test_data(parameter_matrix, k, d)
+        mse = error_calculation_test_data(y_true, y_prediction)
 
-        # line_names.append('d='+str(d)+', MSE='+str(mse))
+        line_names.append('data size ='+str(size)+', MSE='+str(mse))
 
-        # Reading the csv into an array
-        # firstarray = np.genfromtxt("firstarray.csv", delimiter=",")
+    plt.title('Locally Weighted Linear Regression')
+    plt.legend(line_names)
+    plt.savefig('./Q2/Q2-LWLR')
 
-        # plt.title('Training Data Size ='+str(size))
-        # plt.legend(line_names)
-        # plt.savefig('./Q1/Q1-size-'+str(size))
-
-        # plt.show()
-        # plt.close()
+    # plt.show()
+    # plt.close()
 
     print('program ended')
-    pass
 
 
 if __name__ == "__main__":
