@@ -71,7 +71,8 @@ def separate_input_output_limit(input_data, limit=129):
 
 def train_linear_regression_model(k, d, size):
 
-    filename = '../datasets/Q1_b_training_data.txt'
+    # filename = '../datasets/Q1_b_training_data.txt'
+    filename = 'datasets/Q1_b_training_data.txt'
     input_data = fetch_data(filename)
 
     # x_data, y_data = separate_input_output(input_data)
@@ -98,7 +99,8 @@ def prediction(x, parameter_matrix, k, d):
 
 def error_calculation_test_data(parameter_matrix, k, d):
 
-    filename = '../datasets/Q1_c_test_data.txt'
+    # filename = '../datasets/Q1_c_test_data.txt'
+    filename = 'datasets/Q1_c_test_data.txt'
     test_data = fetch_data(filename)
 
     x_data, y_true = separate_input_output(test_data)
@@ -118,7 +120,7 @@ def main():
     max_d = 6
     x = np.linspace(-3, 3, 1000)
 
-    training_size = [129, 20, 10, 5]   # max = 129
+    training_size = [129, 20]   # max = 129
 
     for size in training_size:
 
@@ -142,7 +144,8 @@ def main():
         # firstarray = np.genfromtxt("firstarray.csv", delimiter=",")
         plt.title('Training Data Size ='+str(size))
         plt.legend(line_names)
-        plt.savefig('./Q1/Q1-size-'+str(size))
+        plt.savefig('python/Q1/Q1-size-'+str(size))
+        # plt.savefig('./Q1/Q1-size-' + str(size) + '-overfitting')
         # plt.show()
         # plt.close()
 

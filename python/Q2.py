@@ -82,7 +82,8 @@ def train_and_prediction(x, gamma, size):
 
     query_point = x
 
-    filename = '../datasets/Q1_b_training_data.txt'
+    # filename = '../datasets/Q1_b_training_data.txt'
+    filename = 'datasets/Q1_b_training_data.txt'
     input_data = fetch_data(filename)
     x_data, y_data = separate_input_output_limit(input_data, size)
 
@@ -115,7 +116,8 @@ def main():
 
     training_size = [20, 129]   # max = 129
 
-    filename = '../datasets/Q1_c_test_data.txt'
+    # filename = '../datasets/Q1_c_test_data.txt'
+    filename = 'datasets/Q1_c_test_data.txt'
     test_data = fetch_data(filename)
     x_test, y_true = separate_input_output(test_data)
     line_names = []
@@ -147,7 +149,8 @@ def main():
 
     plt.title('Locally Weighted Linear Regression')
     plt.legend(line_names)
-    plt.savefig('./Q2/Q2-LWLR')
+    # plt.savefig('./Q2/Q2-LWLR')
+    plt.savefig('python/Q2/Q2-LWLR')
 
     # plt.show()
     # plt.close()

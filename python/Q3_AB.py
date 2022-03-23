@@ -75,7 +75,8 @@ def prediction(parameter_matrix, feature_matrix):
 
 def train(alpha, iterations):
 
-    filename = '../datasets/Q3_data.txt'
+    # filename = '../datasets/Q3_data.txt'
+    filename = 'datasets/Q3_data.txt'
     input_data = fetch_data(filename)
 
     height_data, weight_data, age_data, y_data = separate_input_output(input_data)
@@ -103,7 +104,7 @@ def train(alpha, iterations):
         accuracy = 100 - (np.sum(np.square(error_np)) / error_np.size) * 100
         print('Itr =', k, ' accuracy =', accuracy)
 
-    print(parameter_matrix)
+    # print(parameter_matrix)
 
     ax = plt.axes(projection='3d')
 
@@ -112,6 +113,8 @@ def train(alpha, iterations):
     ax.set_xlabel('Height')
     ax.set_ylabel('Weight')
     ax.set_zlabel('Age')
+    # plt.savefig('./Q3/Q3_plot')
+    plt.savefig('python/Q3/Q3_plot')
     plt.show()
 
     return parameter_matrix

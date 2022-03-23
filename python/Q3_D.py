@@ -40,7 +40,7 @@ def separate_input_output(input_data, leave_pos):
 
     age_data_points = np.concatenate((td[:leave_pos, 2], td[leave_pos+1:, 2]))
     age_data = age_data_points.reshape(age_data_points.shape[0], 1)
-    age_data = age_data.astype('float64')
+    age_data = age_data.astype('int64')
 
     # y_data_points = np.concatenate((td[:leave_pos, 3], td[leave_pos+1:, 3]))
     y_data_points = td[:, 3]
@@ -53,13 +53,13 @@ def separate_input_output(input_data, leave_pos):
     return height_data, weight_data, age_data, y_data_01_leave_out, h_test, w_test, a_test, y_true
 
 
-def get_feature_matrix(height_data, weight_data, age_data):
+def get_feature_matrix(height_data, weight_data):
 
-    return np.array([1, height_data, weight_data, age_data], dtype='float64').reshape(4, 1)
+    return np.array([1, height_data, weight_data], dtype='float64').reshape(3, 1)
 
 
 def get_random_parameter_matrix():
-    return np.random.randn(4, 1)
+    return np.random.randn(3, 1)
 
 
 def change_y_data(y_data):
@@ -76,14 +76,13 @@ def prediction(parameter_matrix, feature_matrix):
     linear_regression_output = np.matmul(np.transpose(parameter_matrix), feature_matrix)
 
     sigmoid_output = sigmoid(linear_regression_output)
-    # print('sig =', sigmoid_output)
 
     if sigmoid_output >= 0.5:
-        return 1, sigmoid_output, linear_regression_output
-    return 0, sigmoid_output, linear_regression_output
+        return 1
+    return 0
 
 
-def train(alpha, iterations, height_data, weight_data, age_data, y_data_01):
+def train(alpha, iterations, height_data, weight_data, y_data_01):
 
     parameter_matrix = get_random_parameter_matrix()
     # y_data_01 = change_y_data(y_data)
@@ -94,9 +93,9 @@ def train(alpha, iterations, height_data, weight_data, age_data, y_data_01):
 
         for i in range(height_data.shape[0]):
 
-            feature_matrix = get_feature_matrix(height_data[i], weight_data[i], age_data[i])
+            feature_matrix = get_feature_matrix(height_data[i], weight_data[i])
 
-            y_prediction, sig_output, linear_regression_output = prediction(parameter_matrix, feature_matrix)
+            y_prediction = prediction(parameter_matrix, feature_matrix)
 
             err = y_prediction - y_data_01[i]
             error_array.append(err)
@@ -114,7 +113,7 @@ def train(alpha, iterations, height_data, weight_data, age_data, y_data_01):
     return parameter_matrix
 
 
-def normalize(height, weight, age):
+def normalize(height, weight):
 
     h_mean = height.mean()
     h_std = height.std()
@@ -126,12 +125,7 @@ def normalize(height, weight, age):
     weight -= w_mean
     weight /= w_std
 
-    a_mean = age.mean()
-    a_std = age.std()
-    age -= a_mean
-    age /= a_std
-
-    return height, weight, age
+    return height, weight
 
 
 def main():
@@ -149,21 +143,20 @@ def main():
 
         height_data, weight_data, age_data, y_data_01, h_test, w_test, a_test, y_true = separate_input_output(input_data, i)  # put i here
 
-        height_data, weight_data, age_data = normalize(height_data, weight_data, age_data)
+        height_data, weight_data = normalize(height_data, weight_data)
 
-        parameter_matrix = train(alpha, iterations, height_data, weight_data, age_data, y_data_01)
+        parameter_matrix = train(alpha, iterations, height_data, weight_data, y_data_01)
 
-        feature_matrix = get_feature_matrix(h_test, w_test, a_test)
+        feature_matrix = get_feature_matrix(h_test, w_test)
         # print('h,w,a =', h_test, w_test, a_test)
-        # print(parameter_matrix)
-        y_prediction, sig_output, linear_regression_output = prediction(parameter_matrix, feature_matrix)
-        # print(sig_output, linear_regression_output, y_prediction, y_true)
+        y_prediction = prediction(parameter_matrix, feature_matrix)
+
         err = y_prediction - y_true
         error_array.append(err)
 
     error_np = np.array(error_array)
     accuracy = 100 - (np.sum(np.square(error_np)) / error_np.size) * 100
-    print('Height, Weight, Age')
+    print('Height, Weight Only')
     print('For alpha =', alpha, ', iterations =', iterations)
     print('Leave one out Accuracy = ', accuracy, ' %')
     print('program ended')
