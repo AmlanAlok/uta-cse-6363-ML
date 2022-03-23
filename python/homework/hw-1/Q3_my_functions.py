@@ -21,6 +21,27 @@ AGE_VAR = 'age_var'
 AGE_MEAN_SQR_TOTAL = 'age_mean_sqr_total'
 CLASS_PROBABILITY = 'probability'
 
+'''
+SUMMARY
+
+Assumption - All features are independent. Hence, naive.
+
+First we split the dataset by output labels.
+So all records for W and M are considered separately.
+Then, P(W) and P(M) is calculated. (No. of class data points/ Total data points)
+
+We create a Normal/ Gaussian distribution for every feature we have in the data set for each class.
+So, we calculate the mean and var for a particular feature and create a Gaussian for it.
+In this case, we create 3 Gaussians. One for height, weight and age for each class. Total 6 Gaussians.
+
+Then P(height|C), P(weight|C), and P(age|C) are calculated for M and W.
+
+Gaussian Naive Bayes output of M = P(M)*P(height|M)*P(weight|M)*P(age|M)
+Gaussian Naive Bayes output of W = P(W)*P(height|W)*P(weight|W)*P(age|W)
+
+The greater probability is chosen
+
+'''
 
 def gaussian_formula(mean, var, test_parameter):
     pi = math.pi
@@ -45,8 +66,11 @@ def leave_one_out(input_data, exclude_age=False):
 
         for dp in input_data:
 
+            '''excluding test data check'''
             if dp['index'] != left_out_dp['index']:
                 if dp[OUTPUT] in input_dict:
+
+                    '''calculating the number of W and M in dataset'''
                     input_dict[dp[OUTPUT]][COUNT] += 1
                 else:
                     input_dict[dp[OUTPUT]] = {
@@ -137,6 +161,12 @@ def get_prediction(input_data, input_dict, test_input, exclude_age=False):
                                          test_parameter=test_input[INPUT][AGE])
         }
 
+        '''
+        Gaussian Naive Bayes output of M = P(M)*P(height|M)*P(weight|M)*P(age|M)
+        Gaussian Naive Bayes output of W = P(W)*P(height|W)*P(weight|W)*P(age|W)
+        
+        The greater probability is chosen
+        '''
         if exclude_age:
             test_input['probability'][label]['final_estimate'] = input_dict[label][CLASS_PROBABILITY] * \
                                                                  test_input['probability'][label]['P(height|C)'] * \
