@@ -1,11 +1,13 @@
 import numpy as np
 import math
-# class Record
 
 
 class TreeNode:
-    def __init__(self, data):
-        self.data = data
+
+    def __init__(self, feature_name, feature_index, threshold):
+        self.feature_name = feature_name
+        self.feature_index = feature_index
+        self.threshold = threshold
         self.children = []
         self.parent = None
 
@@ -129,61 +131,106 @@ def main():
     height_idx, weight_idx, age_idx, label_idx = 0, 1, 2, 3
     feature_indexes = [0, 1, 2]
 
+    feature_dict = {
+        0: 'height',
+        1: 'weight',
+        2: 'age'
+    }
+
+    rootNode: TreeNode
+
     input_data = fetch_data(filename)
 
     td = np.array(input_data)
     input = add_numeric_labels(td)
     best_gain_ratio_across_features = []
+    best_threshold_across_features = []
 
-    for i in feature_indexes:
-        sorted_input = input[input[:, i].argsort()]
+    depth = 8
 
-        label_col = sorted_input[:, 3]
-        m_count, w_count = len(label_col[label_col == 0]), len(label_col[label_col == 1])
+    for d in range(depth):
 
-        root_entropy = cal_entropy([m_count, w_count])
+        for i in feature_indexes:
+            '''sorting the input by feature value'''
+            sorted_input = input[input[:, i].argsort()]
 
-        training_data_size = sorted_input.shape[0]
+            '''getting the sorted label column'''
+            label_col = sorted_input[:, 3]
 
-        gain_ratio_list = []
-        # gain_ratio_array = np.array([])
-        gain_ratio_array = np.empty((training_data_size-1, 4))
+            '''counting number of M and W'''
+            m_count, w_count = len(label_col[label_col == 0]), len(label_col[label_col == 1])
 
-        for j in range(1, training_data_size):
+            '''Calculating root entropy'''
+            root_entropy = cal_entropy([m_count, w_count])
 
-            left_m, left_w = 0, 0
-            right_m, right_w = 0, 0
+            '''Calculating the size of training data'''
+            training_data_size = sorted_input.shape[0]
 
-            c = (sorted_input[j, i] + sorted_input[j-1, i])/2
+            gain_ratio_list = []
+            # gain_ratio_array = np.array([])
+            gain_ratio_array = np.empty((training_data_size-1, 4))
 
-            count = np.count_nonzero(sorted_input[:, i] < c )
+            for j in range(1, training_data_size):
 
-            # p = np.vsplit(sorted_input, 2)
-            p1, p2 = sorted_input[:count, 3], sorted_input[count:, 3]
+                '''creating test threshold'''
+                c = (sorted_input[j, i] + sorted_input[j-1, i])/2
 
-            left_m, left_w = len(p1[p1 == 0]), len(p1[p1 == 1])
-            right_m, right_w = len(p2[p2 == 0]), len(p2[p2 == 1])
+                '''splitting data according to this threshold'''
+                count = np.count_nonzero(sorted_input[:, i] < c )
 
-            information_gain = gain(root_entropy, [left_m, left_w], [right_m, right_w])
+                '''splitting the label column'''
+                p1, p2 = sorted_input[:count, 3], sorted_input[count:, 3]
 
-            gain_ratio = cal_gain_ratio(information_gain, [len(p1), len(p2)])
+                '''Counting M and W in each split'''
+                left_m, left_w = len(p1[p1 == 0]), len(p1[p1 == 1])
+                right_m, right_w = len(p2[p2 == 0]), len(p2[p2 == 1])
 
-            gain_ratio_list.append(gain_ratio)
-            gain_ratio_array[j-1] = [gain_ratio, c, len(p1), len(p2)]
+                '''Calculating Information Gain'''
+                information_gain = gain(root_entropy, [left_m, left_w], [right_m, right_w])
+
+                '''Calculating Gain Ratio'''
+                gain_ratio = cal_gain_ratio(information_gain, [len(p1), len(p2)])
+
+                # '''Adding Gain Ratio to a list'''
+                # gain_ratio_list.append(gain_ratio)
+
+                '''Storing the Gain Ratio, threshold, element count on splits'''
+                gain_ratio_array[j-1] = [gain_ratio, c, len(p1), len(p2)]
+
+                pass
+
+            # max_information_gain = gain_ratio_list.index(max(gain_ratio_list))
+            '''Finding the index of the max Gain Ratio'''
+            max_index = gain_ratio_array[:, 0].argmax()
+
+            '''Getting the threshold which gave the Max Gain Ratio'''
+            best_threshold_feature = gain_ratio_array[max_index, 1]
+
+            '''Storing Best Gain Ratio for this feature'''
+            best_gain_ratio_across_features.append(gain_ratio_array[max_index, 0])
+
+            '''Storing Best Threshold for this feature'''
+            best_threshold_across_features.append(best_threshold_feature)
 
             pass
 
-        max_information_gain = gain_ratio_list.index(max(gain_ratio_list))
-        max_index = gain_ratio_array[:, 0].argmax()
-        best_threshold = gain_ratio_array[max_index, 1]
-        best_gain_ratio_across_features.append(gain_ratio_array[max_index, 0])
+        best_gain_ratio_index = best_gain_ratio_across_features.index(max(best_gain_ratio_across_features))
+        best_gain_ratio = best_gain_ratio_across_features[best_gain_ratio_index]
+        best_threshold = best_threshold_across_features[best_gain_ratio_index]
+
+        if d == 1:
+            rootNode = TreeNode(feature_name=feature_dict[best_gain_ratio_index],
+                          feature_index=best_gain_ratio_index,
+                          threshold=best_threshold)
+        else:
+            rootNode.add_child()
+
+
+
+        # height_data, weight_data, age_data, y_data = separate_input_output(input_data)
+        # y_data_01 = change_y_data(y_data)
 
         pass
-
-    # height_data, weight_data, age_data, y_data = separate_input_output(input_data)
-    # y_data_01 = change_y_data(y_data)
-
-    pass
 
 
 if __name__ == "__main__":
