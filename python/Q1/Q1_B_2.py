@@ -4,31 +4,53 @@ import math
 
 class TreeNode:
 
-    feature_name = None
-    feature_index = None
-    feature_threshold = None
-    split_point = None
+    stats = None
     leftNode = None
     rightNode = None
+    parent = None
+    dataset = None
+    leaf = None
+    decision = None
 
-    def __init__(self, feature_name, feature_index, threshold, split_point):
-        self.feature_name = feature_name
-        self.feature_index = feature_index
-        self.threshold = threshold
-        self.split_point = split_point
-        self.children = []
+    def __init__(self):
+        self.stats = None
+        self.leftNode = None
+        self.rightNode = None
         self.parent = None
+        self.dataset = None
+        self.leaf = None
+        self.decision = None
+        # self.feature_name = feature_name
+        # self.feature_index = feature_index
+        # self.best_gain_ratio = best_gain_ratio
+        # self.threshold = threshold
+        # self.split_point = split_point
+        # self.parent = None
 
-    def add_child(self, child):
-        self.children.append(child)
-        child.parent = self
+    # def add_child(self, child):
+    #     self.children.append(child)
+    #     child.parent = self
 
-    def print_tree(self):
-        gap = ' ' * 2 * self.get_level() + '|--'
-        print(gap + self.data)
-        if self.children:
-            for child in self.children:
-                child.print_tree()
+    # def print_tree(self):
+    #     gap = ' ' * 2 * self.get_level() + '|--'
+    #     print(gap + self.data)
+    #     if self.children:
+    #         for child in self.children:
+    #             child.print_tree()
+
+    def add_stats(self, feature_name, feature_index, best_gain_ratio, feature_threshold, split_point):
+
+        info_dict = {
+            "feature_name": feature_name,
+            "feature_index": feature_index,
+            "best_gain_ratio": best_gain_ratio,
+            "feature_threshold": feature_threshold,
+            "split_point": split_point
+        }
+
+        self.stats = info_dict
+
+
 
 
 def clean_data(line):
@@ -57,26 +79,26 @@ def change_y_data(y_data):
 '''Uses all Data'''
 
 
-def separate_input_output(input_data):
-
-    td = np.array(input_data)
-
-    height_data_points = td[:, 0]
-    height_data = height_data_points.reshape(height_data_points.shape[0], 1)
-    height_data = height_data.astype('float64')
-
-    weight_data_points = td[:, 1]
-    weight_data = weight_data_points.reshape(weight_data_points.shape[0], 1)
-    weight_data = weight_data.astype('float64')
-
-    age_data_points = td[:, 2]
-    age_data = age_data_points.reshape(age_data_points.shape[0], 1)
-    age_data = age_data.astype('int64')
-
-    y_data_points = td[:, 3]
-
-
-    return height_data, weight_data, age_data, y_data
+# def separate_input_output(input_data):
+#
+#     td = np.array(input_data)
+#
+#     height_data_points = td[:, 0]
+#     height_data = height_data_points.reshape(height_data_points.shape[0], 1)
+#     height_data = height_data.astype('float64')
+#
+#     weight_data_points = td[:, 1]
+#     weight_data = weight_data_points.reshape(weight_data_points.shape[0], 1)
+#     weight_data = weight_data.astype('float64')
+#
+#     age_data_points = td[:, 2]
+#     age_data = age_data_points.reshape(age_data_points.shape[0], 1)
+#     age_data = age_data.astype('int64')
+#
+#     y_data_points = td[:, 3]
+#
+#
+#     return height_data, weight_data, age_data, y_data
 
 def add_numeric_labels(td):
     y_data_points = td[:, 3]
@@ -128,9 +150,15 @@ def cal_gain_ratio(gain, split_array):
         if i > 0:
             d += (i/s) * math.log(i/s, 2)
 
-    gain_ratio = gain/(-1 * d)
-
-    return gain_ratio
+    try:
+        gain_ratio = gain/(-1 * d)
+        return gain_ratio
+    except:
+        print('Error: cal_gain_ratio')
+        print('split_array =',split_array)
+        print('sum =', s)
+        print('d =', d)
+        raise Exception('Error: cal_gain_ratio')
 
 
 def cal_gain_ration_for_data_set(sorted_input, root_entropy, i, j):
@@ -139,7 +167,7 @@ def cal_gain_ration_for_data_set(sorted_input, root_entropy, i, j):
     c = (sorted_input[j, i] + sorted_input[j - 1, i]) / 2
 
     '''splitting data according to this threshold'''
-    count = np.count_nonzero(sorted_input[:, i] < c)
+    count = np.count_nonzero(sorted_input[:, i] <= c)
 
     '''splitting the label column'''
     p1, p2 = sorted_input[:count, 3], sorted_input[count:, 3]
@@ -152,7 +180,11 @@ def cal_gain_ration_for_data_set(sorted_input, root_entropy, i, j):
     information_gain = gain(root_entropy, [left_m, left_w], [right_m, right_w])
 
     '''Calculating Gain Ratio'''
+    if len(p1) == 0 or len(p2) == 0:
+        return None
+
     gain_ratio = cal_gain_ratio(information_gain, [len(p1), len(p2)])
+
 
     # '''Adding Gain Ratio to a list'''
     # gain_ratio_list.append(gain_ratio)
@@ -182,8 +214,12 @@ def choose_feature_and_threshold(input_data, i):
     gain_ratio_array = np.empty((training_data_size - 1, 5))
 
     for j in range(1, training_data_size):
-        gain_ratio_array[j - 1] = cal_gain_ration_for_data_set(sorted_input, root_entropy, i, j)
-        pass
+        output = cal_gain_ration_for_data_set(sorted_input, root_entropy, i, j)
+        if output is not None:
+            gain_ratio_array[j - 1] = output
+        # pass
+
+    p = 0
 
     '''Finding the index of the max Gain Ratio'''
     max_index = gain_ratio_array[:, 0].argmax()
@@ -200,7 +236,7 @@ def choose_feature_and_threshold(input_data, i):
     return best_gain_ratio_feature, best_threshold_feature, count, max_index
 
 
-def get_next_node(feature_indexes, input_data):
+def get_next_node(feature_indexes, input_data, feature_dict):
 
     best_gain_ratio_across_features = []
     best_threshold_across_features = []
@@ -223,7 +259,61 @@ def get_next_node(feature_indexes, input_data):
     best_threshold = best_threshold_across_features[best_gain_ratio_index]
     split_point = count_array[best_gain_ratio_index]
 
-    return best_gain_ratio_index, best_gain_ratio, best_threshold, split_point
+    i = best_gain_ratio_index
+    sorted_input = input_data[input_data[:, i].argsort()]
+    split_point = int(split_point)
+    part1, part2 = sorted_input[:split_point, :], sorted_input[split_point:, :]
+
+    newNode = TreeNode()
+    newNode.add_stats(feature_name=feature_dict[best_gain_ratio_index],
+                          feature_index=best_gain_ratio_index, best_gain_ratio=best_gain_ratio,
+                          feature_threshold=best_threshold, split_point=split_point)
+
+    part1_label, part2_label = part1[:, 3], part2[:, 3]
+    '''Counting M and W in each split'''
+    left_m, left_w = len(part1_label[part1_label == 0]), len(part1_label[part1_label == 1])
+    right_m, right_w = len(part2_label[part2_label == 0]), len(part2_label[part2_label == 1])
+
+    top = 0
+
+    if left_m == len(part1_label):
+        leafNode = TreeNode()
+        leafNode.leaf = True
+        leafNode.decision = 'M'
+        newNode.leftNode = leafNode
+
+    if left_w == len(part1_label):
+        leafNode = TreeNode()
+        leafNode.leaf = True
+        leafNode.decision = 'W'
+        newNode.leftNode = leafNode
+
+    if right_m == len(part2_label):
+        leafNode = TreeNode()
+        leafNode.leaf = True
+        leafNode.decision = 'M'
+        newNode.rightNode = leafNode
+
+    if right_w == len(part2_label):
+        leafNode = TreeNode()
+        leafNode.leaf = True
+        leafNode.decision = 'W'
+        newNode.rightNode = leafNode
+
+    # if best_gain_ratio != 0 and len(part1) != 0 and len(part2) != 0:
+    #     newNode.left = get_next_node(feature_indexes, part1, feature_dict)
+    #     newNode.right = get_next_node(feature_indexes, part2, feature_dict)
+
+    pass
+
+    if newNode.leftNode is None:
+        newNode.left = get_next_node(feature_indexes, part1, feature_dict)
+
+    if newNode.rightNode is None:
+        newNode.right = get_next_node(feature_indexes, part2, feature_dict)
+
+    return newNode
+    # return best_gain_ratio_index, best_gain_ratio, best_threshold, split_point
 
 
 def main():
@@ -246,48 +336,69 @@ def main():
     input_data = add_numeric_labels(td)
     depth = 8
 
-    root = TreeNode(feature_name=feature_dict[best_gain_ratio_index],
-                          feature_index=best_gain_ratio_index,
-                          threshold=best_threshold, split_point=split_point)
+    '''Creating an empty Tree Node'''
+    # root = TreeNode()
+    # root.dataset = input_data
 
-    for d in range(depth):
-        print('d=', d)
+    # current = root
+
+    root = get_next_node(feature_indexes, input_data, feature_dict)
+
+    print('HI')
+
+    # while current.stats is None and current.dataset is not
+
+    # for d in range(depth):
+    #     print('d=', d)
+    #
+    #     if root.stats is None and root.dataset is not None:
+
+            # best_gain_ratio_index, best_gain_ratio, best_threshold, split_point \
+            #     = get_next_node(feature_indexes, input_data, feature_dict)
+
+            # pass
+            # i = best_gain_ratio_index
+            # sorted_input = input_data[input_data[:, i].argsort()]
+            # split_point = int(split_point)
+            # p1, p2 = sorted_input[:split_point, :], sorted_input[split_point:, :]
+            #
+            # first = TreeNode()
+            # first.add_stats(feature_name=feature_dict[best_gain_ratio_index],
+            #               feature_index=best_gain_ratio_index, best_gain_ratio=best_gain_ratio,
+            #               feature_threshold=best_threshold, split_point=split_point)
+            #
+            # left, right = TreeNode(), TreeNode()
+            # left.dataset, right.dataset = p1, p2
+            #
+            # first.leftNode = left
+            # first.rightNode = right
+            #
+            # root = first
 
 
-        if d == 0:
 
-            best_gain_ratio_index, best_gain_ratio, best_threshold, split_point \
-                = get_next_node(feature_indexes, input_data)
-
-            pass
-            i = best_gain_ratio_index
-            sorted_input = input_data[input_data[:, i].argsort()]
-            split_point = int(split_point)
-            p1, p2 = sorted_input[:split_point, :], sorted_input[split_point:, :]
-
-
-            rootNode = TreeNode(feature_name=feature_dict[best_gain_ratio_index],
-                          feature_index=best_gain_ratio_index,
-                          threshold=best_threshold, split_point=split_point)
-
-            best_gain_ratio_index, best_gain_ratio, best_threshold, split_point \
-                = get_next_node(feature_indexes, p1)
-
-            i = best_gain_ratio_index
-            sorted_p1 = p1[p1[:, i].argsort()]
-            split_point = int(split_point)
-
-            q1, q2 = sorted_p1[:split_point, :], sorted_p1[split_point:, :]
-
-            rootNode.add_child(TreeNode(feature_name=feature_dict[best_gain_ratio_index],
-                          feature_index=best_gain_ratio_index,
-                          threshold=best_threshold, split_point=split_point))
-
-            h = 0
-            pass
+            # root = TreeNode(feature_name=feature_dict[best_gain_ratio_index],
+            #               feature_index=best_gain_ratio_index, best_gain_ratio=best_gain_ratio,
+            #               threshold=best_threshold, split_point=split_point)
+            #
+            # best_gain_ratio_index, best_gain_ratio, best_threshold, split_point \
+            #     = get_next_node(feature_indexes, p1)
+            #
+            # i = best_gain_ratio_index
+            # sorted_p1 = p1[p1[:, i].argsort()]
+            # split_point = int(split_point)
+            #
+            # q1, q2 = sorted_p1[:split_point, :], sorted_p1[split_point:, :]
+            #
+            # rootNode.add_child(TreeNode(feature_name=feature_dict[best_gain_ratio_index],
+            #               feature_index=best_gain_ratio_index,
+            #               threshold=best_threshold, split_point=split_point))
+            #
+            # h = 0
+            # pass
 
 
-        pass
+        # pass
 
 
 if __name__ == "__main__":
