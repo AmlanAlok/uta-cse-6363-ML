@@ -4,41 +4,13 @@ import math
 
 class TreeNode:
 
-    # stats = None
-    # leftNode = None
-    # rightNode = None
-    # parent = None
-    # dataset = None
-    # leaf = None
-    # decision = None
-    # depth = None
-
     def __init__(self):
         self.stats = None
         self.leftNode = None
         self.rightNode = None
-        # self.parent = None
-        # self.dataset = None
         self.leaf = False
         self.decision = None
         self.depth = None
-        # self.feature_name = feature_name
-        # self.feature_index = feature_index
-        # self.best_gain_ratio = best_gain_ratio
-        # self.threshold = threshold
-        # self.split_point = split_point
-        # self.parent = None
-
-    # def add_child(self, child):
-    #     self.children.append(child)
-    #     child.parent = self
-
-    # def print_tree(self):
-    #     gap = ' ' * 2 * self.get_level() + '|--'
-    #     print(gap + self.data)
-    #     if self.children:
-    #         for child in self.children:
-    #             child.print_tree()
 
     def add_stats(self, feature_name, feature_index, best_gain_ratio, feature_threshold, split_point):
 
@@ -157,12 +129,6 @@ def cal_gain_ration_for_data_set(sorted_input, root_entropy, i, j):
 
     gain_ratio = cal_gain_ratio(information_gain, [len(p1), len(p2)])
 
-
-    # '''Adding Gain Ratio to a list'''
-    # gain_ratio_list.append(gain_ratio)
-
-    '''Storing the Gain Ratio, threshold, element count on splits'''
-    # gain_ratio_array[j - 1] = [gain_ratio, c, len(p1), len(p2)]
     return [gain_ratio, c, count, len(p1), len(p2)]
 
 
@@ -189,7 +155,6 @@ def choose_feature_and_threshold(input_data, i):
         output = cal_gain_ration_for_data_set(sorted_input, root_entropy, i, j)
         if output is not None:
             gain_ratio_array[j - 1] = output
-        # pass
 
     p = 0
 
@@ -225,7 +190,6 @@ def get_next_node(feature_indexes, input_data, feature_dict, depth, allowed_dept
         best_threshold_across_features.append(best_threshold_feature)
 
         count_array.append(count)
-        pass
 
     best_gain_ratio_index = best_gain_ratio_across_features.index(max(best_gain_ratio_across_features))
     best_gain_ratio = best_gain_ratio_across_features[best_gain_ratio_index]
@@ -301,7 +265,6 @@ def get_prediction(record, root_node):
 
     current_node = root_node
 
-    # while currentNode.leftNode is not None and currentNode.rightNode is not None:
     while current_node is not None:
 
         '''This indicates that we have reached a leaf node'''
@@ -341,8 +304,66 @@ def run_accuracy_test_on_dataset(input_data, rootNode):
     return accuracy
 
 
-'''Q1 part B'''
+def question_2(training_input_data, test_input_data, feature_indexes, feature_dict, starting_depth):
+    '''Q2'''
+
+    print('\nQ2 - BAGGING')
+    bagging_array = [10, 50, 100]
+    chosen_depth = 4
+    bagging_tree_dict = {}
+    test_dataset_size = test_input_data.shape[0]
+
+    '''This is for the k different datasets and classifiers '''
+    for bag_count in bagging_array:
+
+        '''iterating through each k value'''
+        for i in range(1, bag_count + 1):
+            random_indices = np.random.choice(training_input_data.shape[0], training_input_data.shape[0])
+            random_training_dataset = training_input_data[random_indices]
+
+            rootNode = get_next_node(feature_indexes, random_training_dataset, feature_dict, starting_depth,
+                                     chosen_depth)
+            bagging_tree_dict[i] = rootNode
+
+        y_array = []
+
+        '''iterating through test data'''
+        for j in range(test_dataset_size):
+
+            classifier_outputs_array = []
+            for k in range(1, bag_count + 1):
+                y_predict = get_prediction(test_input_data[j], bagging_tree_dict[k])
+                classifier_outputs_array.append(y_predict)
+
+            classifier_outputs = np.array(classifier_outputs_array)
+
+            m_count = len(classifier_outputs[classifier_outputs == 0])
+            w_count = len(classifier_outputs[classifier_outputs == 1])
+
+            if m_count > w_count:
+                y_array.append(0)
+            else:
+                y_array.append(1)
+
+        y_predict = np.array(y_array)
+        y_label = test_input_data[:, 3]
+
+        mismatch = np.count_nonzero(y_label != y_predict)
+        correct_pred = test_dataset_size - mismatch
+
+        accuracy = (correct_pred / test_dataset_size) * 100
+
+        print('--------------------------------------------')
+        print('Bagging K =', bag_count, ', accuracy =', accuracy)
+
+    print('--------------------------------------------')
+    pass
+
+
 def main():
+
+    '''Q1 part B'''
+
     # filename = 'datasets/Q1_b_training_data.txt'
     training_filename = '../../data/Q1_C_training.txt'
     test_filename = '../../data/Q1_C_test.txt'
@@ -358,14 +379,16 @@ def main():
     td = np.array(input_data_from_file)
     training_input_data = add_numeric_labels(td)
 
-    depth_array = [1, 2, 3, 4, 5, 6, 7, 8]
-    # depth_array = [1]
+    # depth_array = [1, 2, 3, 4, 5, 6, 7, 8]
+    depth_array = [4]
     starting_depth = -1
     decision_tree_dict = {}
 
     for allowed_depth in depth_array:
         rootNode = get_next_node(feature_indexes, training_input_data, feature_dict, starting_depth, allowed_depth)
         decision_tree_dict[allowed_depth] = rootNode
+
+    '''Q1 Part C'''
 
     test_input_data_from_file = fetch_data(test_filename)
     test_td = np.array(test_input_data_from_file)
@@ -379,7 +402,9 @@ def main():
         print('training accuracy =', training_acc)
         print('test accuracy =', test_acc)
 
-    print('HI')
+    print('--------------------------------------------')
+
+    question_2(training_input_data, test_input_data, feature_indexes, feature_dict, starting_depth)
 
 
 if __name__ == "__main__":
