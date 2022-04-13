@@ -4,13 +4,14 @@ import math
 
 class TreeNode:
 
-    stats = None
-    leftNode = None
-    rightNode = None
-    parent = None
-    dataset = None
-    leaf = None
-    decision = None
+    # stats = None
+    # leftNode = None
+    # rightNode = None
+    # parent = None
+    # dataset = None
+    # leaf = None
+    # decision = None
+    # depth = None
 
     def __init__(self):
         self.stats = None
@@ -18,8 +19,9 @@ class TreeNode:
         self.rightNode = None
         self.parent = None
         self.dataset = None
-        self.leaf = None
+        self.leaf = False
         self.decision = None
+        self.depth = None
         # self.feature_name = feature_name
         # self.feature_index = feature_index
         # self.best_gain_ratio = best_gain_ratio
@@ -51,22 +53,15 @@ class TreeNode:
         self.stats = info_dict
 
 
-
-
 def clean_data(line):
     return line.replace('(', '').replace(')', '').replace(' ', '').strip().split(',')
 
 
 def fetch_data(file_name):
-    # print('inside func '+ inspect.stack()[0][3])
 
     with open(file_name, 'r') as f:
         input_data = f.readlines()
-        # print(type(input_data ))
-        # print('Number of data points =', len(input_data ))
-
         clean_input = list(map(clean_data, input_data))
-
         f.close()
 
     return clean_input
@@ -76,29 +71,6 @@ def change_y_data(y_data):
     value_01 = np.unique(y_data, return_inverse=True)[1]
     return value_01
 
-'''Uses all Data'''
-
-
-# def separate_input_output(input_data):
-#
-#     td = np.array(input_data)
-#
-#     height_data_points = td[:, 0]
-#     height_data = height_data_points.reshape(height_data_points.shape[0], 1)
-#     height_data = height_data.astype('float64')
-#
-#     weight_data_points = td[:, 1]
-#     weight_data = weight_data_points.reshape(weight_data_points.shape[0], 1)
-#     weight_data = weight_data.astype('float64')
-#
-#     age_data_points = td[:, 2]
-#     age_data = age_data_points.reshape(age_data_points.shape[0], 1)
-#     age_data = age_data.astype('int64')
-#
-#     y_data_points = td[:, 3]
-#
-#
-#     return height_data, weight_data, age_data, y_data
 
 def add_numeric_labels(td):
     y_data_points = td[:, 3]
@@ -236,7 +208,8 @@ def choose_feature_and_threshold(input_data, i):
     return best_gain_ratio_feature, best_threshold_feature, count, max_index
 
 
-def get_next_node(feature_indexes, input_data, feature_dict):
+def get_next_node(feature_indexes, input_data, feature_dict, depth):
+
 
     best_gain_ratio_across_features = []
     best_threshold_across_features = []
@@ -268,6 +241,7 @@ def get_next_node(feature_indexes, input_data, feature_dict):
     newNode.add_stats(feature_name=feature_dict[best_gain_ratio_index],
                           feature_index=best_gain_ratio_index, best_gain_ratio=best_gain_ratio,
                           feature_threshold=best_threshold, split_point=split_point)
+    newNode.depth = depth + 1
 
     part1_label, part2_label = part1[:, 3], part2[:, 3]
     '''Counting M and W in each split'''
@@ -280,37 +254,35 @@ def get_next_node(feature_indexes, input_data, feature_dict):
         leafNode = TreeNode()
         leafNode.leaf = True
         leafNode.decision = 'M'
+        leafNode.depth = newNode.depth + 1
         newNode.leftNode = leafNode
 
     if left_w == len(part1_label):
         leafNode = TreeNode()
         leafNode.leaf = True
         leafNode.decision = 'W'
+        leafNode.depth = newNode.depth + 1
         newNode.leftNode = leafNode
 
     if right_m == len(part2_label):
         leafNode = TreeNode()
         leafNode.leaf = True
         leafNode.decision = 'M'
+        leafNode.depth = newNode.depth + 1
         newNode.rightNode = leafNode
 
     if right_w == len(part2_label):
         leafNode = TreeNode()
         leafNode.leaf = True
         leafNode.decision = 'W'
+        leafNode.depth = newNode.depth + 1
         newNode.rightNode = leafNode
 
-    # if best_gain_ratio != 0 and len(part1) != 0 and len(part2) != 0:
-    #     newNode.left = get_next_node(feature_indexes, part1, feature_dict)
-    #     newNode.right = get_next_node(feature_indexes, part2, feature_dict)
-
-    pass
-
     if newNode.leftNode is None:
-        newNode.left = get_next_node(feature_indexes, part1, feature_dict)
+        newNode.leftNode = get_next_node(feature_indexes, part1, feature_dict, newNode.depth)
 
     if newNode.rightNode is None:
-        newNode.right = get_next_node(feature_indexes, part2, feature_dict)
+        newNode.rightNode = get_next_node(feature_indexes, part2, feature_dict, newNode.depth)
 
     return newNode
     # return best_gain_ratio_index, best_gain_ratio, best_threshold, split_point
@@ -342,7 +314,14 @@ def main():
 
     # current = root
 
-    root = get_next_node(feature_indexes, input_data, feature_dict)
+    starting_depth = -1
+
+    root = get_next_node(feature_indexes, input_data, feature_dict, starting_depth)
+
+    '''
+    1. Add clssificaiton decision on each node based on majority
+    2. Add depth property to each node 
+    '''
 
     print('HI')
 
