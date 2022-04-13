@@ -17,8 +17,8 @@ class TreeNode:
         self.stats = None
         self.leftNode = None
         self.rightNode = None
-        self.parent = None
-        self.dataset = None
+        # self.parent = None
+        # self.dataset = None
         self.leaf = False
         self.decision = None
         self.depth = None
@@ -255,36 +255,36 @@ def get_next_node(feature_indexes, input_data, feature_dict, depth, allowed_dept
         woman_count = left_w + right_w
 
         if man_count > woman_count:
-            newNode.decision = 'M'
+            newNode.decision = 0
         else:
-            newNode.decision = 'W'
+            newNode.decision = 1
 
     if newNode.depth < allowed_depth:
         if left_m == len(part1_label):
             leafNode = TreeNode()
             leafNode.leaf = True
-            leafNode.decision = 'M'
+            leafNode.decision = 0
             leafNode.depth = newNode.depth + 1
             newNode.leftNode = leafNode
 
         if left_w == len(part1_label):
             leafNode = TreeNode()
             leafNode.leaf = True
-            leafNode.decision = 'W'
+            leafNode.decision = 1
             leafNode.depth = newNode.depth + 1
             newNode.leftNode = leafNode
 
         if right_m == len(part2_label):
             leafNode = TreeNode()
             leafNode.leaf = True
-            leafNode.decision = 'M'
+            leafNode.decision = 0
             leafNode.depth = newNode.depth + 1
             newNode.rightNode = leafNode
 
         if right_w == len(part2_label):
             leafNode = TreeNode()
             leafNode.leaf = True
-            leafNode.decision = 'W'
+            leafNode.decision = 1
             leafNode.depth = newNode.depth + 1
             newNode.rightNode = leafNode
 
@@ -297,38 +297,87 @@ def get_next_node(feature_indexes, input_data, feature_dict, depth, allowed_dept
     return newNode
 
 
+def get_prediction(record, root_node):
+
+    current_node = root_node
+
+    # while currentNode.leftNode is not None and currentNode.rightNode is not None:
+    while current_node is not None:
+
+        '''This indicates that we have reached a leaf node'''
+        if current_node.leaf:
+            return current_node.decision
+        '''This means that we have reached the end of the tree but this is not a leaf node'''
+        if current_node.leftNode is None and current_node.rightNode is None:
+            return current_node.decision
+
+        feature_index = current_node.stats['feature_index']
+        feature_threshold = current_node.stats['feature_threshold']
+
+        if record[feature_index] <= feature_threshold:
+            current_node = current_node.leftNode
+        else:
+            current_node = current_node.rightNode
+
+
+def run_accuracy_test_on_dataset(input_data, rootNode):
+
+    dataset_size = input_data.shape[0]
+    y_array = []
+
+    for i in range(dataset_size):
+        y_predict = get_prediction(input_data[i], rootNode)
+        y_array.append(y_predict)
+
+    y_predict = np.array(y_array)
+    y_label = input_data[:, 3]
+
+    mismatch = np.count_nonzero(y_label != y_predict)
+    correct_pred = dataset_size - mismatch
+
+    accuracy = (correct_pred/dataset_size)*100
+
+    pass
+    return accuracy
+
+
+'''Q1 part B'''
 def main():
     # filename = 'datasets/Q1_b_training_data.txt'
-    filename = '../../data/Q1_C_training.txt'
-    # height_idx, weight_idx, age_idx, label_idx = 0, 1, 2, 3
-    feature_indexes = [0, 1, 2]
+    training_filename = '../../data/Q1_C_training.txt'
+    test_filename = '../../data/Q1_C_test.txt'
 
+    feature_indexes = [0, 1, 2]
     feature_dict = {
         0: 'height',
         1: 'weight',
         2: 'age'
     }
 
-    rootNode: TreeNode
-
-    input_data_from_file = fetch_data(filename)
-
+    input_data_from_file = fetch_data(training_filename)
     td = np.array(input_data_from_file)
-    input_data = add_numeric_labels(td)
+    training_input_data = add_numeric_labels(td)
 
     depth_array = [1, 2, 3, 4, 5, 6, 7, 8]
+    # depth_array = [1]
     starting_depth = -1
-
     decision_tree_dict = {}
-    # allowed_depth = 3
 
     for allowed_depth in depth_array:
-        root = get_next_node(feature_indexes, input_data, feature_dict, starting_depth, allowed_depth)
-        decision_tree_dict[allowed_depth] = root
-    '''
-    1. Add clssification decision on each node based on majority
-    2. Add depth property to each node 
-    '''
+        rootNode = get_next_node(feature_indexes, training_input_data, feature_dict, starting_depth, allowed_depth)
+        decision_tree_dict[allowed_depth] = rootNode
+
+    test_input_data_from_file = fetch_data(test_filename)
+    test_td = np.array(test_input_data_from_file)
+    test_input_data = add_numeric_labels(test_td)
+
+    for depth in depth_array:
+        print('--------------------------------------------')
+        print('Running Accuracy test on DEPTH =', depth)
+        training_acc = run_accuracy_test_on_dataset(training_input_data, decision_tree_dict[depth])
+        test_acc = run_accuracy_test_on_dataset(test_input_data, decision_tree_dict[depth])
+        print('training accuracy =', training_acc)
+        print('test accuracy =', test_acc)
 
     print('HI')
 
