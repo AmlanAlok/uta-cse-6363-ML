@@ -307,14 +307,17 @@ def run_accuracy_test_on_dataset(input_data, rootNode):
 def question_2(training_input_data, test_input_data, feature_indexes, feature_dict, starting_depth):
     '''Q2'''
 
-    print('\nQ2 - BAGGING')
     bagging_array = [10, 50, 100]
+    print('\nQ2 - BAGGING - Size =', bagging_array)
     chosen_depth = 4
-    bagging_tree_dict = {}
+    print('Chosen tree depth =', chosen_depth)
+
     test_dataset_size = test_input_data.shape[0]
 
     '''This is for the k different datasets and classifiers '''
     for bag_count in bagging_array:
+
+        bagging_tree_dict = {}
 
         '''iterating through each k value'''
         for i in range(1, bag_count + 1):
@@ -353,10 +356,10 @@ def question_2(training_input_data, test_input_data, feature_indexes, feature_di
 
         accuracy = (correct_pred / test_dataset_size) * 100
 
-        print('--------------------------------------------')
-        print('Bagging K =', bag_count, ', accuracy =', accuracy)
+        print('-----------------------------------------------------------')
+        print('Bagging K =', bag_count, ', test data set accuracy =', accuracy)
 
-    print('--------------------------------------------')
+    print('-----------------------------------------------------------')
     pass
 
 
@@ -399,8 +402,8 @@ def main():
         print('Running Accuracy test on DEPTH =', depth)
         training_acc = run_accuracy_test_on_dataset(training_input_data, decision_tree_dict[depth])
         test_acc = run_accuracy_test_on_dataset(test_input_data, decision_tree_dict[depth])
-        print('training accuracy =', training_acc)
-        print('test accuracy =', test_acc)
+        print('training data set accuracy =', training_acc)
+        print('test data set accuracy =', test_acc)
 
     print('--------------------------------------------')
 
