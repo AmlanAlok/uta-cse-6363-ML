@@ -278,6 +278,15 @@ def get_next_node(feature_indexes, input_data, feature_dict, depth):
         leafNode.depth = newNode.depth + 1
         newNode.rightNode = leafNode
 
+    if newNode.depth > 0:
+        man_count = left_m + right_m
+        woman_count = left_w + right_w
+
+        if man_count > woman_count:
+            newNode.decision = 'M'
+        else:
+            newNode.decision = 'W'
+
     if newNode.leftNode is None:
         newNode.leftNode = get_next_node(feature_indexes, part1, feature_dict, newNode.depth)
 
@@ -285,7 +294,6 @@ def get_next_node(feature_indexes, input_data, feature_dict, depth):
         newNode.rightNode = get_next_node(feature_indexes, part2, feature_dict, newNode.depth)
 
     return newNode
-    # return best_gain_ratio_index, best_gain_ratio, best_threshold, split_point
 
 
 def main():
@@ -307,77 +315,16 @@ def main():
     td = np.array(input_data_from_file)
     input_data = add_numeric_labels(td)
     depth = 8
-
-    '''Creating an empty Tree Node'''
-    # root = TreeNode()
-    # root.dataset = input_data
-
-    # current = root
-
     starting_depth = -1
 
     root = get_next_node(feature_indexes, input_data, feature_dict, starting_depth)
 
     '''
-    1. Add clssificaiton decision on each node based on majority
+    1. Add clssification decision on each node based on majority
     2. Add depth property to each node 
     '''
 
     print('HI')
-
-    # while current.stats is None and current.dataset is not
-
-    # for d in range(depth):
-    #     print('d=', d)
-    #
-    #     if root.stats is None and root.dataset is not None:
-
-            # best_gain_ratio_index, best_gain_ratio, best_threshold, split_point \
-            #     = get_next_node(feature_indexes, input_data, feature_dict)
-
-            # pass
-            # i = best_gain_ratio_index
-            # sorted_input = input_data[input_data[:, i].argsort()]
-            # split_point = int(split_point)
-            # p1, p2 = sorted_input[:split_point, :], sorted_input[split_point:, :]
-            #
-            # first = TreeNode()
-            # first.add_stats(feature_name=feature_dict[best_gain_ratio_index],
-            #               feature_index=best_gain_ratio_index, best_gain_ratio=best_gain_ratio,
-            #               feature_threshold=best_threshold, split_point=split_point)
-            #
-            # left, right = TreeNode(), TreeNode()
-            # left.dataset, right.dataset = p1, p2
-            #
-            # first.leftNode = left
-            # first.rightNode = right
-            #
-            # root = first
-
-
-
-            # root = TreeNode(feature_name=feature_dict[best_gain_ratio_index],
-            #               feature_index=best_gain_ratio_index, best_gain_ratio=best_gain_ratio,
-            #               threshold=best_threshold, split_point=split_point)
-            #
-            # best_gain_ratio_index, best_gain_ratio, best_threshold, split_point \
-            #     = get_next_node(feature_indexes, p1)
-            #
-            # i = best_gain_ratio_index
-            # sorted_p1 = p1[p1[:, i].argsort()]
-            # split_point = int(split_point)
-            #
-            # q1, q2 = sorted_p1[:split_point, :], sorted_p1[split_point:, :]
-            #
-            # rootNode.add_child(TreeNode(feature_name=feature_dict[best_gain_ratio_index],
-            #               feature_index=best_gain_ratio_index,
-            #               threshold=best_threshold, split_point=split_point))
-            #
-            # h = 0
-            # pass
-
-
-        # pass
 
 
 if __name__ == "__main__":
