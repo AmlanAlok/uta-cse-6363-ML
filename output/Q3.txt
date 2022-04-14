@@ -1,0 +1,15 @@
+adaboost_array = [10, 25, 50, 100]
+Chosen tree depth = 4
+Boosting times = 10 , Accuracy =  73.33333333333333
+Boosting times = 25 , Accuracy =  70.0
+Boosting times = 50 , Accuracy =  76.66666666666667
+Boosting times = 100 , Accuracy =  80.0
+Finish
+
+
+adaboost_array = [10, 25, 50]
+Chosen tree depth = 4
+Boosting times = 10 , Accuracy =  80.0
+Boosting times = 25 , Accuracy =  63.33333333333333
+Boosting times = 50 , Accuracy =  63.33333333333333
+Finish

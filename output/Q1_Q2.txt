@@ -1,0 +1,46 @@
+amlanalok@Amlans-MacBook-Pro uta-cse-6363-ML % python3 python/sol/Q1_Q2.py
+--------------------------------------------
+Running Accuracy test on DEPTH = 1
+training data set accuracy = 84.44444444444444
+test data set accuracy = 66.66666666666666
+--------------------------------------------
+Running Accuracy test on DEPTH = 2
+training data set accuracy = 85.55555555555556
+test data set accuracy = 66.66666666666666
+--------------------------------------------
+Running Accuracy test on DEPTH = 3
+training data set accuracy = 87.77777777777777
+test data set accuracy = 80.0
+--------------------------------------------
+Running Accuracy test on DEPTH = 4
+training data set accuracy = 90.0
+test data set accuracy = 73.33333333333333
+--------------------------------------------
+Running Accuracy test on DEPTH = 5
+training data set accuracy = 91.11111111111111
+test data set accuracy = 73.33333333333333
+--------------------------------------------
+Running Accuracy test on DEPTH = 6
+training data set accuracy = 91.11111111111111
+test data set accuracy = 73.33333333333333
+--------------------------------------------
+Running Accuracy test on DEPTH = 7
+training data set accuracy = 95.55555555555556
+test data set accuracy = 76.66666666666667
+--------------------------------------------
+Running Accuracy test on DEPTH = 8
+training data set accuracy = 97.77777777777777
+test data set accuracy = 73.33333333333333
+--------------------------------------------
+
+Q2 - BAGGING - Size = [10, 50, 100]
+Chosen tree depth = 4
+-----------------------------------------------------------
+Bagging K = 10 , test data set accuracy = 80.0
+-----------------------------------------------------------
+Bagging K = 50 , test data set accuracy = 80.0
+-----------------------------------------------------------
+Bagging K = 100 , test data set accuracy = 80.0
+-----------------------------------------------------------
+Finish
+amlanalok@Amlans-MacBook-Pro uta-cse-6363-ML %

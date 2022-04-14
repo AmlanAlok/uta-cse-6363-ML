@@ -99,7 +99,7 @@ def cal_gain_ratio(gain, split_array):
         return gain_ratio
     except:
         print('Error: cal_gain_ratio')
-        print('split_array =',split_array)
+        print('split_array =', split_array)
         print('sum =', s)
         print('d =', d)
         raise Exception('Error: cal_gain_ratio')
@@ -117,9 +117,10 @@ def cal_gain_ration_for_data_set(sorted_input, root_entropy, i, j):
     p1, p2 = sorted_input[:count, 3], sorted_input[count:, 3]
 
     '''Counting M and W in each split'''
-    left_m, left_w = len(p1[p1 == 0]), len(p1[p1 == 1])
-    right_m, right_w = len(p2[p2 == 0]), len(p2[p2 == 1])
-
+    # left_m, left_w = len(p1[p1 == 0]), len(p1[p1 == 1])
+    # right_m, right_w = len(p2[p2 == 0]), len(p2[p2 == 1])
+    left_m, left_w = len(p1[p1 == -1]), len(p1[p1 == 1])
+    right_m, right_w = len(p2[p2 == -1]), len(p2[p2 == 1])
     '''Calculating Information Gain'''
     information_gain = gain(root_entropy, [left_m, left_w], [right_m, right_w])
 
@@ -129,6 +130,7 @@ def cal_gain_ration_for_data_set(sorted_input, root_entropy, i, j):
     if len(p1) == 0 or len(p2) == 0:
         return None
 
+    # gain_ratio = cal_gain_ratio(information_gain, [len(p1), len(p2)])
     gain_ratio = cal_gain_ratio(weighted_information_gain, [len(p1), len(p2)])
 
     return [gain_ratio, c, count, len(p1), len(p2)]
@@ -143,8 +145,8 @@ def choose_feature_and_threshold(input_data, i):
     label_col = sorted_input[:, 3]
 
     '''counting number of M and W'''
-    m_count, w_count = len(label_col[label_col == 0]), len(label_col[label_col == 1])
-
+    # m_count, w_count = len(label_col[label_col == 0]), len(label_col[label_col == 1])
+    m_count, w_count = len(label_col[label_col == -1]), len(label_col[label_col == 1])
     '''Calculating root entropy'''
     root_entropy = cal_entropy([m_count, w_count])
 
@@ -211,8 +213,11 @@ def get_next_node(feature_indexes, input_data, feature_dict, depth, allowed_dept
 
     part1_label, part2_label = part1[:, 3], part2[:, 3]
     '''Counting M and W in each split'''
-    left_m, left_w = len(part1_label[part1_label == 0]), len(part1_label[part1_label == 1])
-    right_m, right_w = len(part2_label[part2_label == 0]), len(part2_label[part2_label == 1])
+    # left_m, left_w = len(part1_label[part1_label == 0]), len(part1_label[part1_label == 1])
+    # right_m, right_w = len(part2_label[part2_label == 0]), len(part2_label[part2_label == 1])
+
+    left_m, left_w = len(part1_label[part1_label == -1]), len(part1_label[part1_label == 1])
+    right_m, right_w = len(part2_label[part2_label == -1]), len(part2_label[part2_label == 1])
 
     top = 0
 
@@ -221,7 +226,7 @@ def get_next_node(feature_indexes, input_data, feature_dict, depth, allowed_dept
         woman_count = left_w + right_w
 
         if man_count > woman_count:
-            newNode.decision = 0
+            newNode.decision = -1
         else:
             newNode.decision = 1
 
@@ -229,7 +234,7 @@ def get_next_node(feature_indexes, input_data, feature_dict, depth, allowed_dept
         if left_m == len(part1_label):
             leafNode = TreeNode()
             leafNode.leaf = True
-            leafNode.decision = 0
+            leafNode.decision = -1
             leafNode.depth = newNode.depth + 1
             newNode.leftNode = leafNode
 
@@ -243,7 +248,7 @@ def get_next_node(feature_indexes, input_data, feature_dict, depth, allowed_dept
         if right_m == len(part2_label):
             leafNode = TreeNode()
             leafNode.leaf = True
-            leafNode.decision = 0
+            leafNode.decision = -1
             leafNode.depth = newNode.depth + 1
             newNode.rightNode = leafNode
 
@@ -306,66 +311,6 @@ def run_accuracy_test_on_dataset(input_data, rootNode):
     return accuracy
 
 
-def question_2(training_input_data, test_input_data, feature_indexes, feature_dict, starting_depth):
-
-    ''' Q2  '''
-
-    bagging_array = [10, 50, 100]
-    print('\nQ2 - BAGGING - Size =', bagging_array)
-    chosen_depth = 4
-    print('Chosen tree depth =', chosen_depth)
-
-    test_dataset_size = test_input_data.shape[0]
-
-    '''This is for the k different datasets and classifiers '''
-    for bag_count in bagging_array:
-
-        bagging_tree_dict = {}
-
-        '''iterating through each k value'''
-        for i in range(1, bag_count + 1):
-            random_indices = np.random.choice(training_input_data.shape[0], training_input_data.shape[0])
-            random_training_dataset = training_input_data[random_indices]
-
-            rootNode = get_next_node(feature_indexes, random_training_dataset, feature_dict, starting_depth,
-                                     chosen_depth)
-            bagging_tree_dict[i] = rootNode
-
-        y_array = []
-
-        '''iterating through test data'''
-        for j in range(test_dataset_size):
-
-            classifier_outputs_array = []
-            for k in range(1, bag_count + 1):
-                y_predict = get_prediction(test_input_data[j], bagging_tree_dict[k])
-                classifier_outputs_array.append(y_predict)
-
-            classifier_outputs = np.array(classifier_outputs_array)
-
-            m_count = len(classifier_outputs[classifier_outputs == 0])
-            w_count = len(classifier_outputs[classifier_outputs == 1])
-
-            if m_count > w_count:
-                y_array.append(0)
-            else:
-                y_array.append(1)
-
-        y_predict = np.array(y_array)
-        y_label = test_input_data[:, 3]
-
-        mismatch = np.count_nonzero(y_label != y_predict)
-        correct_pred = test_dataset_size - mismatch
-
-        accuracy = (correct_pred / test_dataset_size) * 100
-
-        print('-----------------------------------------------------------')
-        print('Bagging K =', bag_count, ', test data set accuracy =', accuracy)
-
-    print('-----------------------------------------------------------')
-    pass
-
-
 def add_equal_weights(training_input_data):
 
     s = training_input_data.shape[0]
@@ -423,7 +368,6 @@ def get_error(rootNode, total_w, input_data):
         err_num += dp_weight * (1 - delta)
 
     em = err_num/total_w
-    corr = sum(top)
 
     return em
 
@@ -483,14 +427,10 @@ def adaboost_accuracy(adaboost_tree_dic, am_array, ada_count, test_input_data):
     return accuracy
 
 
-
-
-
-
 def question_3(training_input_data, test_input_data, feature_indexes, feature_dict, starting_depth):
 
-    # adaboost_array = [10, 25, 50]
-    adaboost_array = [10]
+    adaboost_array = [10, 25, 50, 100]
+    print('adaboost_array =', adaboost_array)
     chosen_depth = 4
     print('Chosen tree depth =', chosen_depth)
 
@@ -515,8 +455,9 @@ def question_3(training_input_data, test_input_data, feature_indexes, feature_di
 
             em = get_error(rootNode, total_w, weighted_training_data)
 
-            if em >= 0.5:
-                print('We should stop here as em =', em, ' > 0.5')
+            ''' Disabling this to get output'''
+            # if em >= 0.5:
+            #     print('We should stop here as em =', em, ' >= 0.5. But I am just seeing what happens')
 
             right_to_wrong_ratio = (1-em)/em
             am = (1/2) * np.log(right_to_wrong_ratio)
@@ -530,24 +471,14 @@ def question_3(training_input_data, test_input_data, feature_indexes, feature_di
 
         print('Boosting times =', ada_count, ', Accuracy = ', acc)
 
-    print('polo')
-
-
-
 
 def main():
 
-    '''Q1 Part B'''
-
-    # filename = 'datasets/Q1_b_training_data.txt'
     # training_filename = 'data/Q1_C_training.txt'
     # test_filename = 'data/Q1_C_test.txt'
 
     training_filename = '../../data/Q1_C_training.txt'
     test_filename = '../../data/Q1_C_test.txt'
-
-    # training_filename = '../../data/ada_1.txt'
-    # test_filename = '../../data/ada_2.txt'
 
     feature_indexes = [0, 1, 2]
     feature_dict = {
@@ -559,33 +490,11 @@ def main():
     input_data_from_file = fetch_data(training_filename)
     td = np.array(input_data_from_file)
     training_input_data = add_numeric_labels(td)
-
-    # depth_array = [1, 2, 3, 4, 5, 6, 7, 8]
-    depth_array = [4]
     starting_depth = -1
-    decision_tree_dict = {}
-
-    # for allowed_depth in depth_array:
-    #     rootNode = get_next_node(feature_indexes, training_input_data, feature_dict, starting_depth, allowed_depth)
-    #     decision_tree_dict[allowed_depth] = rootNode
-
-    '''Q1 Part C'''
-    print('a')
-    pass
 
     test_input_data_from_file = fetch_data(test_filename)
     test_td = np.array(test_input_data_from_file)
     test_input_data = add_numeric_labels(test_td)
-    #
-    # for depth in depth_array:
-    #     print('--------------------------------------------')
-    #     print('Running Accuracy test on DEPTH =', depth)
-    #     training_acc = run_accuracy_test_on_dataset(training_input_data, decision_tree_dict[depth])
-    #     test_acc = run_accuracy_test_on_dataset(test_input_data, decision_tree_dict[depth])
-    #     print('training data set accuracy =', training_acc)
-    #     print('test data set accuracy =', test_acc)
-    #
-    # print('--------------------------------------------')
 
     question_3(training_input_data, test_input_data, feature_indexes, feature_dict, starting_depth)
 

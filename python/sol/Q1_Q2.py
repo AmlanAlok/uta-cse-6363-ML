@@ -368,7 +368,6 @@ def main():
 
     '''Q1 Part B'''
 
-    # filename = 'datasets/Q1_b_training_data.txt'
     training_filename = 'data/Q1_C_training.txt'
     test_filename = 'data/Q1_C_test.txt'
     # training_filename = '../../data/Q1_C_training.txt'

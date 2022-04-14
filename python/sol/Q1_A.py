@@ -417,23 +417,6 @@ def main():
 
     '''sol Part C'''
     print('Finish')
-    pass
-
-    # test_input_data_from_file = fetch_data(test_filename)
-    # test_td = np.array(test_input_data_from_file)
-    # test_input_data = add_numeric_labels(test_td)
-
-    # for depth in depth_array:
-    #     print('--------------------------------------------')
-    #     print('Running Accuracy test on DEPTH =', depth)
-    #     training_acc = run_accuracy_test_on_dataset(training_input_data, decision_tree_dict[depth])
-    #     test_acc = run_accuracy_test_on_dataset(test_input_data, decision_tree_dict[depth])
-    #     print('training data set accuracy =', training_acc)
-    #     print('test data set accuracy =', test_acc)
-    #
-    # print('--------------------------------------------')
-
-    # question_2(training_input_data, test_input_data, feature_indexes, feature_dict, starting_depth)
 
 
 if __name__ == "__main__":

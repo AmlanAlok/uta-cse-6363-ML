@@ -1,0 +1,209 @@
+------------------------------------------------------------------
+Checking Gain Ratio for feature =  height
+Sorting the data by feature
+[[ 1.66307338 66.85622176 35.          1.        ]
+ [ 1.66609135 67.05754055 36.          1.        ]
+ [ 1.76645931 58.28371313 31.          1.        ]
+ [ 1.86426715 80.53251241 34.          0.        ]
+ [ 1.93517566 71.3897497  37.          0.        ]
+ [ 2.07200277 86.55684973 33.          0.        ]]
+[M, W] = [3, 3]
+
+root_entropy = 1.0
+
+Choosing threshold value =  1.6645823683509
+splitting data by <= threshold criteria
+left part = [1.]
+right part = [1. 1. 0. 0. 0.]
+[M, W] = [0, 1]
+[M, W] = [3, 2]
+information_gain = 0.19087450462110944
+Gain ratio = 0.2936429548646674
+
+Choosing threshold value =  1.7162753321913
+splitting data by <= threshold criteria
+left part = [1. 1.]
+right part = [1. 0. 0. 0.]
+[M, W] = [0, 2]
+[M, W] = [3, 1]
+information_gain = 0.4591479170272448
+Gain ratio = 0.5
+
+Choosing threshold value =  1.8153632279906
+splitting data by <= threshold criteria
+left part = [1. 1. 1.]
+right part = [0. 0. 0.]
+[M, W] = [0, 3]
+[M, W] = [3, 0]
+information_gain = 1.0
+Gain ratio = 1.0
+
+Choosing threshold value =  1.89972140120615
+splitting data by <= threshold criteria
+left part = [1. 1. 1. 0.]
+right part = [0. 0.]
+[M, W] = [1, 3]
+[M, W] = [2, 0]
+information_gain = 0.4591479170272448
+Gain ratio = 0.5
+
+Choosing threshold value =  2.0035892150747
+splitting data by <= threshold criteria
+left part = [1. 1. 1. 0. 0.]
+right part = [0.]
+[M, W] = [2, 3]
+[M, W] = [1, 0]
+information_gain = 0.19087450462110944
+Gain ratio = 0.2936429548646674
+
+All gain ratio's for diff thresholds
+Gain Ratio   |Threshold
+[[0.29364295 1.66458237]
+ [0.5        1.71627533]
+ [1.         1.81536323]
+ [0.5        1.8997214 ]
+ [0.29364295 2.00358922]]
+
+Best Gain Ratio = 1.0 , with threshold = 1.8153632279906
+
+------------------------------------------------------------------
+Checking Gain Ratio for feature =  weight
+Sorting the data by feature
+[[ 1.76645931 58.28371313 31.          1.        ]
+ [ 1.66307338 66.85622176 35.          1.        ]
+ [ 1.66609135 67.05754055 36.          1.        ]
+ [ 1.93517566 71.3897497  37.          0.        ]
+ [ 1.86426715 80.53251241 34.          0.        ]
+ [ 2.07200277 86.55684973 33.          0.        ]]
+[M, W] = [3, 3]
+
+root_entropy = 1.0
+
+Choosing threshold value =  62.569967445262
+splitting data by <= threshold criteria
+left part = [1.]
+right part = [1. 1. 0. 0. 0.]
+[M, W] = [0, 1]
+[M, W] = [3, 2]
+information_gain = 0.19087450462110944
+Gain ratio = 0.2936429548646674
+
+Choosing threshold value =  66.95688115647951
+splitting data by <= threshold criteria
+left part = [1. 1.]
+right part = [1. 0. 0. 0.]
+[M, W] = [0, 2]
+[M, W] = [3, 1]
+information_gain = 0.4591479170272448
+Gain ratio = 0.5
+
+Choosing threshold value =  69.2236451242605
+splitting data by <= threshold criteria
+left part = [1. 1. 1.]
+right part = [0. 0. 0.]
+[M, W] = [0, 3]
+[M, W] = [3, 0]
+information_gain = 1.0
+Gain ratio = 1.0
+
+Choosing threshold value =  75.96113105341149
+splitting data by <= threshold criteria
+left part = [1. 1. 1. 0.]
+right part = [0. 0.]
+[M, W] = [1, 3]
+[M, W] = [2, 0]
+information_gain = 0.4591479170272448
+Gain ratio = 0.5
+
+Choosing threshold value =  83.544681068513
+splitting data by <= threshold criteria
+left part = [1. 1. 1. 0. 0.]
+right part = [0.]
+[M, W] = [2, 3]
+[M, W] = [1, 0]
+information_gain = 0.19087450462110944
+Gain ratio = 0.2936429548646674
+
+All gain ratio's for diff thresholds
+Gain Ratio   |Threshold
+[[ 0.29364295 62.56996745]
+ [ 0.5        66.95688116]
+ [ 1.         69.22364512]
+ [ 0.5        75.96113105]
+ [ 0.29364295 83.54468107]]
+
+Best Gain Ratio = 1.0 , with threshold = 69.2236451242605
+
+------------------------------------------------------------------
+Checking Gain Ratio for feature =  age
+Sorting the data by feature
+[[ 1.76645931 58.28371313 31.          1.        ]
+ [ 2.07200277 86.55684973 33.          0.        ]
+ [ 1.86426715 80.53251241 34.          0.        ]
+ [ 1.66307338 66.85622176 35.          1.        ]
+ [ 1.66609135 67.05754055 36.          1.        ]
+ [ 1.93517566 71.3897497  37.          0.        ]]
+[M, W] = [3, 3]
+
+root_entropy = 1.0
+
+Choosing threshold value =  32.0
+splitting data by <= threshold criteria
+left part = [1.]
+right part = [0. 0. 1. 1. 0.]
+[M, W] = [0, 1]
+[M, W] = [3, 2]
+information_gain = 0.19087450462110944
+Gain ratio = 0.2936429548646674
+
+Choosing threshold value =  33.5
+splitting data by <= threshold criteria
+left part = [1. 0.]
+right part = [0. 1. 1. 0.]
+[M, W] = [1, 1]
+[M, W] = [2, 2]
+information_gain = 0.0
+Gain ratio = 0.0
+
+Choosing threshold value =  34.5
+splitting data by <= threshold criteria
+left part = [1. 0. 0.]
+right part = [1. 1. 0.]
+[M, W] = [2, 1]
+[M, W] = [1, 2]
+information_gain = 0.08170416594551044
+Gain ratio = 0.08170416594551044
+
+Choosing threshold value =  35.5
+splitting data by <= threshold criteria
+left part = [1. 0. 0. 1.]
+right part = [1. 0.]
+[M, W] = [2, 2]
+[M, W] = [1, 1]
+information_gain = 0.0
+Gain ratio = 0.0
+
+Choosing threshold value =  36.5
+splitting data by <= threshold criteria
+left part = [1. 0. 0. 1. 1.]
+right part = [0.]
+[M, W] = [2, 3]
+[M, W] = [1, 0]
+information_gain = 0.19087450462110944
+Gain ratio = 0.2936429548646674
+
+All gain ratio's for diff thresholds
+Gain Ratio   |Threshold
+[[ 0.29364295 32.        ]
+ [ 0.         33.5       ]
+ [ 0.08170417 34.5       ]
+ [ 0.         35.5       ]
+ [ 0.29364295 36.5       ]]
+
+Best Gain Ratio = 0.2936429548646674 , with threshold = 32.0
+Evaluating what to choose ...
+Best gain ratio across Height, Weight and Age = [1.0, 1.0, 0.2936429548646674]
+Chosen highest Gain ratio = 1.0 , which has threshold = 1.8153632279906  of feature = height
+Finish
+
+Process finished with exit code 0
