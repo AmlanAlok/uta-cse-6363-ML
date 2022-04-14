@@ -474,11 +474,11 @@ def question_3(training_input_data, test_input_data, feature_indexes, feature_di
 
 def main():
 
-    # training_filename = 'data/Q1_C_training.txt'
-    # test_filename = 'data/Q1_C_test.txt'
+    training_filename = 'data/Q1_C_training.txt'
+    test_filename = 'data/Q1_C_test.txt'
 
-    training_filename = '../../data/Q1_C_training.txt'
-    test_filename = '../../data/Q1_C_test.txt'
+    # training_filename = '../../data/Q1_C_training.txt'
+    # test_filename = '../../data/Q1_C_test.txt'
 
     feature_indexes = [0, 1, 2]
     feature_dict = {
