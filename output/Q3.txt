@@ -13,3 +13,19 @@ Boosting times = 10 , Accuracy =  80.0
 Boosting times = 25 , Accuracy =  63.33333333333333
 Boosting times = 50 , Accuracy =  63.33333333333333
 Finish
+
+
+
+amlanalok@Amlans-MacBook-Pro uta-cse-6363-ML % python3 python/sol/Q3.py
+adaboost_array = [10, 25, 50, 100]
+Chosen tree depth = 4
+Started training for  10  times
+We should stop here as em = 0.5764726577558923  >= 0.5. But I am just seeing what happens
+Started training for  25  times
+We should stop here as em = 0.5764726577558923  >= 0.5. But I am just seeing what happens
+Started training for  50  times
+We should stop here as em = 0.5764726577558923  >= 0.5. But I am just seeing what happens
+Started training for  100  times
+We should stop here as em = 0.5764726577558923  >= 0.5. But I am just seeing what happens
+Finish
+amlanalok@Amlans-MacBook-Pro uta-cse-6363-ML %

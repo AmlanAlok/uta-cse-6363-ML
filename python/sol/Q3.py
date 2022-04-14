@@ -440,7 +440,8 @@ def question_3(training_input_data, test_input_data, feature_indexes, feature_di
     equal_weighted_training_data = add_equal_weights(training_input_data)
 
     for ada_count in adaboost_array:
-
+        print('Started training for ', ada_count, ' times')
+        stop = False
         adaboost_tree_dic = {}
 
         weighted_training_data = equal_weighted_training_data
@@ -457,7 +458,9 @@ def question_3(training_input_data, test_input_data, feature_indexes, feature_di
 
             ''' Disabling this to get output'''
             # if em >= 0.5:
-            #     print('We should stop here as em =', em, ' >= 0.5. But I am just seeing what happens')
+            #     print('We should stop here as em =', em, ' >= 0.5.')
+            #     stop = True       # commented to get outputs
+            #     break
 
             right_to_wrong_ratio = (1-em)/em
             am = (1/2) * np.log(right_to_wrong_ratio)
@@ -467,9 +470,11 @@ def question_3(training_input_data, test_input_data, feature_indexes, feature_di
 
             weighted_training_data = adjust_weights(rootNode, weighted_training_data, am)
 
-        acc = adaboost_accuracy(adaboost_tree_dic, am_array, ada_count, test_input_data)
+        if not stop:
 
-        print('Boosting times =', ada_count, ', Accuracy = ', acc)
+            acc = adaboost_accuracy(adaboost_tree_dic, am_array, ada_count, test_input_data)
+
+            print('Boosting times =', ada_count, ', Accuracy = ', acc)
 
 
 def main():
@@ -496,6 +501,7 @@ def main():
     test_td = np.array(test_input_data_from_file)
     test_input_data = add_numeric_labels(test_td)
 
+    '''Q3'''
     question_3(training_input_data, test_input_data, feature_indexes, feature_dict, starting_depth)
 
     print('Finish')
