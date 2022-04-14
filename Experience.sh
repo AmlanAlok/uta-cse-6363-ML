@@ -6,7 +6,7 @@ Q2 - For 3 feaures, how can the depth be 8?
 2.
 
 
-# Result of Q1
+# Result of sol
 
 --------------------------------------------
 Running Accuracy test on DEPTH = 1

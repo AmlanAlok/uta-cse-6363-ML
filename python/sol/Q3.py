@@ -123,11 +123,13 @@ def cal_gain_ration_for_data_set(sorted_input, root_entropy, i, j):
     '''Calculating Information Gain'''
     information_gain = gain(root_entropy, [left_m, left_w], [right_m, right_w])
 
+    weighted_information_gain = sorted_input[j, 4] * information_gain
+
     '''Calculating Gain Ratio'''
     if len(p1) == 0 or len(p2) == 0:
         return None
 
-    gain_ratio = cal_gain_ratio(information_gain, [len(p1), len(p2)])
+    gain_ratio = cal_gain_ratio(weighted_information_gain, [len(p1), len(p2)])
 
     return [gain_ratio, c, count, len(p1), len(p2)]
 
@@ -305,7 +307,8 @@ def run_accuracy_test_on_dataset(input_data, rootNode):
 
 
 def question_2(training_input_data, test_input_data, feature_indexes, feature_dict, starting_depth):
-    '''Q2'''
+
+    ''' Q2  '''
 
     bagging_array = [10, 50, 100]
     print('\nQ2 - BAGGING - Size =', bagging_array)
@@ -363,13 +366,188 @@ def question_2(training_input_data, test_input_data, feature_indexes, feature_di
     pass
 
 
+def add_equal_weights(training_input_data):
+
+    s = training_input_data.shape[0]
+
+    w = 1/s
+
+    for i in range(s):
+        if training_input_data[i, 3] == 0:
+            training_input_data[i, 3] = -1
+
+    weight_arr = np.full(s, w)
+    weight_arr_col = weight_arr.reshape(weight_arr.shape[0], 1)
+
+    new_trainging = np.concatenate((training_input_data, weight_arr_col), axis=1)
+    pass
+    return new_trainging
+
+
+def find_mismatch(input_data, rootNode):
+
+    dataset_size = input_data.shape[0]
+    y_array = []
+
+    for i in range(dataset_size):
+        y_predict = get_prediction(input_data[i], rootNode)
+        y_array.append(y_predict)
+
+    y_predict = np.array(y_array)
+    y_label = input_data[:, 3]
+
+    mismatch = np.count_nonzero(y_label != y_predict)
+
+    return mismatch
+
+
+def get_error(rootNode, total_w, input_data):
+    dataset_size = input_data.shape[0]
+    err_num = 0
+    top = []
+
+    for i in range(dataset_size):
+        y_predict = get_prediction(input_data[i], rootNode)
+
+        y_label = input_data[i, 3]
+
+        if y_label == y_predict:
+            delta = 1
+        else:
+            delta = 0
+
+        top.append(delta)
+
+        dp_weight = input_data[i, 4]
+
+        err_num += dp_weight * (1 - delta)
+
+    em = err_num/total_w
+    corr = sum(top)
+
+    return em
+
+
+def adjust_weights(rootNode, weights_data, am):
+    dataset_size = weights_data.shape[0]
+
+    for i in range(dataset_size):
+        y_predict = get_prediction(weights_data[i], rootNode)
+
+        y_label = weights_data[i, 3]
+
+        p = -1*am*y_label*y_predict
+
+        current_weight = weights_data[i, 4]
+
+        weights_data[i, 4] = current_weight * np.exp(p)
+
+    return weights_data
+
+
+def adaboost_accuracy(adaboost_tree_dic, am_array, ada_count, test_input_data):
+
+    dataset_size = test_input_data.shape[0]
+
+    for i in range(dataset_size):
+        if test_input_data[i, 3] == 0:
+            test_input_data[i, 3] = -1
+
+    test_output = []
+
+    for t in range(dataset_size):
+
+        pred_total = 0
+
+        for i in range(1, ada_count+1):
+
+            treeNode =adaboost_tree_dic[i]
+            y_predict = get_prediction(test_input_data[t], treeNode)
+
+            am = am_array[i-1]
+
+            pred_total += am * y_predict
+
+        final_y_pred = np.sign(pred_total)
+
+        test_output.append(final_y_pred)
+
+    test_y_predict = np.array(test_output)
+    test_y_label = test_input_data[:, 3]
+
+    mismatch = np.count_nonzero(test_y_label != test_y_predict)
+    correct_pred = dataset_size - mismatch
+
+    accuracy = (correct_pred / dataset_size) * 100
+
+    return accuracy
+
+
+
+
+
+
+def question_3(training_input_data, test_input_data, feature_indexes, feature_dict, starting_depth):
+
+    # adaboost_array = [10, 25, 50]
+    adaboost_array = [10]
+    chosen_depth = 4
+    print('Chosen tree depth =', chosen_depth)
+
+    em_array = []
+    am_array = []
+
+    equal_weighted_training_data = add_equal_weights(training_input_data)
+
+    for ada_count in adaboost_array:
+
+        adaboost_tree_dic = {}
+
+        weighted_training_data = equal_weighted_training_data
+
+        for i in range(1, ada_count + 1):
+
+            rootNode = get_next_node(feature_indexes, weighted_training_data, feature_dict, starting_depth,
+                                     chosen_depth)
+            adaboost_tree_dic[i] = rootNode
+
+            total_w = np.sum(weighted_training_data[:, 4])
+
+            em = get_error(rootNode, total_w, weighted_training_data)
+
+            if em >= 0.5:
+                print('We should stop here as em =', em, ' > 0.5')
+
+            right_to_wrong_ratio = (1-em)/em
+            am = (1/2) * np.log(right_to_wrong_ratio)
+
+            em_array.append(em)
+            am_array.append(am)
+
+            weighted_training_data = adjust_weights(rootNode, weighted_training_data, am)
+
+        acc = adaboost_accuracy(adaboost_tree_dic, am_array, ada_count, test_input_data)
+
+        print('Boosting times =', ada_count, ', Accuracy = ', acc)
+
+    print('polo')
+
+
+
+
 def main():
 
-    '''Q1 part B'''
+    '''Q1 Part B'''
 
     # filename = 'datasets/Q1_b_training_data.txt'
+    # training_filename = 'data/Q1_C_training.txt'
+    # test_filename = 'data/Q1_C_test.txt'
+
     training_filename = '../../data/Q1_C_training.txt'
     test_filename = '../../data/Q1_C_test.txt'
+
+    # training_filename = '../../data/ada_1.txt'
+    # test_filename = '../../data/ada_2.txt'
 
     feature_indexes = [0, 1, 2]
     feature_dict = {
@@ -387,27 +565,31 @@ def main():
     starting_depth = -1
     decision_tree_dict = {}
 
-    for allowed_depth in depth_array:
-        rootNode = get_next_node(feature_indexes, training_input_data, feature_dict, starting_depth, allowed_depth)
-        decision_tree_dict[allowed_depth] = rootNode
+    # for allowed_depth in depth_array:
+    #     rootNode = get_next_node(feature_indexes, training_input_data, feature_dict, starting_depth, allowed_depth)
+    #     decision_tree_dict[allowed_depth] = rootNode
 
     '''Q1 Part C'''
+    print('a')
+    pass
 
     test_input_data_from_file = fetch_data(test_filename)
     test_td = np.array(test_input_data_from_file)
     test_input_data = add_numeric_labels(test_td)
+    #
+    # for depth in depth_array:
+    #     print('--------------------------------------------')
+    #     print('Running Accuracy test on DEPTH =', depth)
+    #     training_acc = run_accuracy_test_on_dataset(training_input_data, decision_tree_dict[depth])
+    #     test_acc = run_accuracy_test_on_dataset(test_input_data, decision_tree_dict[depth])
+    #     print('training data set accuracy =', training_acc)
+    #     print('test data set accuracy =', test_acc)
+    #
+    # print('--------------------------------------------')
 
-    for depth in depth_array:
-        print('--------------------------------------------')
-        print('Running Accuracy test on DEPTH =', depth)
-        training_acc = run_accuracy_test_on_dataset(training_input_data, decision_tree_dict[depth])
-        test_acc = run_accuracy_test_on_dataset(test_input_data, decision_tree_dict[depth])
-        print('training data set accuracy =', training_acc)
-        print('test data set accuracy =', test_acc)
+    question_3(training_input_data, test_input_data, feature_indexes, feature_dict, starting_depth)
 
-    print('--------------------------------------------')
-
-    question_2(training_input_data, test_input_data, feature_indexes, feature_dict, starting_depth)
+    print('Finish')
 
 
 if __name__ == "__main__":

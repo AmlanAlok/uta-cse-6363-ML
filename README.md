@@ -1,2 +1,5 @@
-# uta-cse-6363-ML
-Repository for UTA CSE 6363 taught by Manfred Huber
+
+Datasets are present in this directory -> /data
+
+Please run the below commands from the root directory of the code
+
