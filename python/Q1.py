@@ -15,6 +15,7 @@ def fetch_data(file_name):
 
     return clean_input
 
+
 def add_numeric_labels(td):
     y_data_points = td[:, 3]
     y_data = y_data_points.reshape(y_data_points.shape[0], 1)
@@ -25,6 +26,23 @@ def add_numeric_labels(td):
     return x
 
 
+def split_data(td):
+
+    x = td[:, :3]
+    y_label = td[:, 3]
+    pass
+
+    return x, y_label
+
+
+def get_dist_mat(a):
+
+    b = a[:, None]
+    c = a - b
+    d = np.linalg.norm(c, axis=-1)
+
+    return d
+
 def main():
 
     training_filename = '../data/120_data_points.txt'
@@ -32,6 +50,10 @@ def main():
     input_data_from_file = fetch_data(training_filename)
     td = np.array(input_data_from_file)
     training_input_data = add_numeric_labels(td)
+
+    inp, y_label = split_data(training_input_data)
+
+    dist_mat = get_dist_mat(inp)
 
     pass
 
