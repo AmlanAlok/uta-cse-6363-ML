@@ -225,13 +225,29 @@ def complete_linkage_next_point(dist_mat, cluster_dict, dict):
     return row_idx, col_idx
 
 
-def get_mean_cluster_distance(cluster_x1, cluster_x2, dist_mat):
+def get_mean_cluster_distance(cluster_x1, cluster_x2, dict):
     x1_size, x2_size = len(cluster_x1), len(cluster_x2)
 
-    return 0
+    x1_total = np.zeros((1, 3))
+    x2_total = np.zeros((1, 3))
+
+    for i in range(x1_size):
+        x1_index = cluster_x1[i]
+        x1_total += dict[x1_index]['input_array']
+
+    for i in range(x2_size):
+        x2_index = cluster_x2[i]
+        x2_total += dict[x2_index]['input_array']
+
+    x1_avg = x1_total/x1_size
+    x2_avg = x2_total/x2_size
+
+    mean_distance = np.linalg.norm(x1_avg - x2_avg)
+
+    return mean_distance
 
 
-def mean_linkage_next_point(dist_mat, cluster_dict):
+def mean_linkage_next_point(dist_mat, cluster_dict, dict):
 
     total_clusters = len(cluster_dict)
     dist_chart = np.full((total_clusters, total_clusters), float('inf'))
@@ -240,6 +256,10 @@ def mean_linkage_next_point(dist_mat, cluster_dict):
         cluster_x1 = cluster_dict[i]
 
         for j in range(total_clusters):
+
+            if i == j:
+                continue
+
             cluster_x2 = cluster_dict[j]
 
             x1_size, x2_size = len(cluster_x1), len(cluster_x2)
@@ -254,7 +274,7 @@ def mean_linkage_next_point(dist_mat, cluster_dict):
                 dist_chart[j][i] = dist_mat[data_index_1][data_index_2]
                 pass
             elif x1_size > 1 or x2_size > 1:
-                mean_distance = get_mean_cluster_distance(cluster_x1, cluster_x2, dist_mat)
+                mean_distance = get_mean_cluster_distance(cluster_x1, cluster_x2, dict)
 
                 dist_chart[i][j] = mean_distance
                 dist_chart[j][i] = mean_distance
@@ -267,6 +287,7 @@ def mean_linkage_next_point(dist_mat, cluster_dict):
     pass
 
     return row_idx, col_idx
+
 
 def main():
 
@@ -295,7 +316,7 @@ def main():
         if cluster_count in interested_clusters:
             interested_dict[cluster_count] = cluster_dict.copy()
 
-        x_idx, y_idx = complete_linkage_next_point(dist_mat, cluster_dict, dict)
+        x_idx, y_idx = mean_linkage_next_point(dist_mat, cluster_dict, dict)
         pass
 
     pass

@@ -185,7 +185,7 @@ def create_dist_mat_cluster_and_point(cluster_x1, cluster_x2, dist_mat):
     return data_index_1, data_index_2, max_distance
 
 
-def complete_linkage_next_point(dist_mat, cluster_dict, dict):
+def  complete_linkage_next_point(dist_mat, cluster_dict):
 
     total_clusters = len(cluster_dict)
 
@@ -201,7 +201,6 @@ def complete_linkage_next_point(dist_mat, cluster_dict, dict):
 
             if x1_size == 0 or x2_size == 0:
                 # print('This cluster is empty ', cluster_x1, cluster_x2)
-
                 continue
             elif x1_size == 1 and x2_size == 1:
                 data_index_1 = cluster_x1[0]
@@ -209,14 +208,6 @@ def complete_linkage_next_point(dist_mat, cluster_dict, dict):
                 dist_chart[i][j] = dist_mat[data_index_1][data_index_2]
                 dist_chart[j][i] = dist_mat[data_index_1][data_index_2]
                 pass
-            # elif x1_size > 1 and x2_size == 1:
-            #     data_index_1, data_index_2, max_distance = create_dist_mat_cluster_and_point(cluster_x1, cluster_x2,
-            #                                                                                  dist_mat)
-            #     pass
-            # elif x1_size == 1 and x2_size > 1:
-            #     data_index_1, data_index_2, max_distance = create_dist_mat_cluster_and_point(cluster_x1, cluster_x2,
-            #                                                                                  dist_mat)
-            #     pass
             elif x1_size > 1 or x2_size > 1:
                 data_index_1, data_index_2, max_distance = create_dist_mat_cluster_and_point(cluster_x1, cluster_x2,
                                                                                              dist_mat)
@@ -226,7 +217,7 @@ def complete_linkage_next_point(dist_mat, cluster_dict, dict):
     min_num_index = np.unravel_index(dist_chart.argmin(), dist_chart.shape)
     row_idx, col_idx = min_num_index[0], min_num_index[1]
 
-    print('Min value found = ', dist_mat[row_idx, col_idx])
+    # print('Min value found = ', dist_mat[row_idx, col_idx])
 
     pass
 
@@ -260,7 +251,7 @@ def main():
         if cluster_count in interested_clusters:
             interested_dict[cluster_count] = cluster_dict.copy()
 
-        x_idx, y_idx = complete_linkage_next_point(dist_mat, cluster_dict, dict)
+        x_idx, y_idx = complete_linkage_next_point(dist_mat, cluster_dict)
         pass
 
     pass
