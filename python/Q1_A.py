@@ -57,20 +57,6 @@ def get_dist_mat(a):
     return dist_mat
 
 
-def find_index_of_next_min(dist_mat):
-
-    min_num_index = np.unravel_index(dist_mat.argmin(), dist_mat.shape)
-    row_idx, col_idx = min_num_index[0], min_num_index[1]
-
-    print('Min value found = ', dist_mat[row_idx, col_idx])
-
-    '''We do this so that next time the same min number is not returned'''
-    dist_mat[row_idx, col_idx] = float('inf')
-    dist_mat[col_idx, row_idx] = float('inf')
-
-    return dist_mat, row_idx, col_idx
-
-
 def get_dict(input_data):
 
     dict = {}
@@ -87,6 +73,31 @@ def get_dict(input_data):
         dict[i] = d
 
     return dict
+
+
+def create_cluster_foreach_data_point(input_data):
+
+    cluster_dict = {}
+    num_of_data_points = input_data.shape[0]
+
+    for i in range(num_of_data_points):
+        cluster_dict[i] = [i]
+
+    return cluster_dict
+
+
+def find_index_of_next_min(dist_mat):
+
+    min_num_index = np.unravel_index(dist_mat.argmin(), dist_mat.shape)
+    row_idx, col_idx = min_num_index[0], min_num_index[1]
+
+    print('Min value found = ', dist_mat[row_idx, col_idx])
+
+    '''We do this so that next time the same min number is not returned'''
+    dist_mat[row_idx, col_idx] = float('inf')
+    dist_mat[col_idx, row_idx] = float('inf')
+
+    return dist_mat, row_idx, col_idx
 
 
 def assign_cluster(index, cluster_index, dict):
@@ -154,16 +165,108 @@ def add_indexes_to_same_cluster(x1_idx, x2_idx, d, cluster_dict, cluster_count):
     return d, cluster_count
 
 
-def create_cluster_foreach_data_point(input_data):
+def create_dist_mat_cluster_and_point(cluster_x1, cluster_x2, dist_mat):
+    x1_size, x2_size = len(cluster_x1), len(cluster_x2)
+    dist_box = np.full((x1_size, x2_size), float('-inf')) # Bcuz we are looking for MAX here
 
-    cluster_dict = {}
-    num_of_data_points = input_data.shape[0]
+    for i in range(x1_size):
+        for j in range(x2_size):
+            data_index_1 = cluster_x1[i]
+            data_index_2 = cluster_x2[j]    # Bcuz there is only 1
+            dist_box[i][j] = dist_mat[data_index_1][data_index_2]
 
-    for i in range(num_of_data_points):
-        cluster_dict[i] = [i]
+    max_num_index = np.unravel_index(dist_box.argmax(), dist_box.shape)
+    row_idx, col_idx = max_num_index[0], max_num_index[1]
 
-    return cluster_dict
+    data_index_1 = cluster_x1[row_idx]
+    data_index_2 = cluster_x2[col_idx]
+    max_distance = dist_box[row_idx][col_idx]
 
+    return data_index_1, data_index_2, max_distance
+
+
+def complete_linkage_next_point(dist_mat, cluster_dict, dict):
+
+    total_clusters = len(cluster_dict)
+
+    dist_chart = np.full((total_clusters, total_clusters), float('inf'))
+
+    for i in range(total_clusters):
+        cluster_x1 = cluster_dict[i]
+
+        for j in range(total_clusters):
+            cluster_x2 = cluster_dict[j]
+
+            x1_size, x2_size = len(cluster_x1), len(cluster_x2)
+
+            if x1_size == 0 or x2_size == 0:
+                # print('This cluster is empty ', cluster_x1, cluster_x2)
+
+                continue
+            elif x1_size == 1 and x2_size == 1:
+                data_index_1 = cluster_x1[0]
+                data_index_2 = cluster_x2[0]
+                dist_chart[i][j] = dist_mat[data_index_1][data_index_2]
+                dist_chart[j][i] = dist_mat[data_index_1][data_index_2]
+                pass
+            elif x1_size > 1 or x2_size > 1:
+                data_index_1, data_index_2, max_distance = create_dist_mat_cluster_and_point(cluster_x1, cluster_x2,
+                                                                                             dist_mat)
+                dist_chart[i][j] = dist_mat[data_index_1][data_index_2]
+                dist_chart[j][i] = dist_mat[data_index_1][data_index_2]
+
+    min_num_index = np.unravel_index(dist_chart.argmin(), dist_chart.shape)
+    row_idx, col_idx = min_num_index[0], min_num_index[1]
+
+    print('Min value found = ', dist_mat[row_idx, col_idx])
+
+    pass
+
+    return row_idx, col_idx
+
+
+def get_mean_cluster_distance(cluster_x1, cluster_x2, dist_mat):
+    x1_size, x2_size = len(cluster_x1), len(cluster_x2)
+
+    return 0
+
+
+def mean_linkage_next_point(dist_mat, cluster_dict):
+
+    total_clusters = len(cluster_dict)
+    dist_chart = np.full((total_clusters, total_clusters), float('inf'))
+
+    for i in range(total_clusters):
+        cluster_x1 = cluster_dict[i]
+
+        for j in range(total_clusters):
+            cluster_x2 = cluster_dict[j]
+
+            x1_size, x2_size = len(cluster_x1), len(cluster_x2)
+
+            if x1_size == 0 or x2_size == 0:
+                # print('This cluster is empty ', cluster_x1, cluster_x2)
+                continue
+            elif x1_size == 1 and x2_size == 1:
+                data_index_1 = cluster_x1[0]
+                data_index_2 = cluster_x2[0]
+                dist_chart[i][j] = dist_mat[data_index_1][data_index_2]
+                dist_chart[j][i] = dist_mat[data_index_1][data_index_2]
+                pass
+            elif x1_size > 1 or x2_size > 1:
+                mean_distance = get_mean_cluster_distance(cluster_x1, cluster_x2, dist_mat)
+
+                dist_chart[i][j] = mean_distance
+                dist_chart[j][i] = mean_distance
+
+    min_num_index = np.unravel_index(dist_chart.argmin(), dist_chart.shape)
+    row_idx, col_idx = min_num_index[0], min_num_index[1]
+
+    print('Min value found = ', dist_mat[row_idx, col_idx])
+
+    pass
+
+    return row_idx, col_idx
 
 def main():
 
@@ -183,14 +286,21 @@ def main():
     interested_clusters = [2, 4, 6, 8]
     interested_dict = {}
 
+    dist_mat, x_idx, y_idx = find_index_of_next_min(dist_mat)
+
     while cluster_count > 1:
-        dist_mat, x_idx, y_idx = find_index_of_next_min(dist_mat)
+    # for i in range(5):
         dict, cluster_count = add_indexes_to_same_cluster(x_idx, y_idx, dict, cluster_dict, cluster_count)
+
         if cluster_count in interested_clusters:
             interested_dict[cluster_count] = cluster_dict.copy()
 
+        x_idx, y_idx = complete_linkage_next_point(dist_mat, cluster_dict, dict)
+        pass
+
     pass
-    print('Finish')
+
+    print('Finished')
 
 
 if __name__ == "__main__":
