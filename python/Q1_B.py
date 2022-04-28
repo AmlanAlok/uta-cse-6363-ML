@@ -38,7 +38,6 @@ def split_data(td):
 
     x = td[:, :3]
     y_label = td[:, 3]
-    pass
 
     return x, y_label
 
@@ -62,7 +61,7 @@ def find_index_of_next_min(dist_mat):
     min_num_index = np.unravel_index(dist_mat.argmin(), dist_mat.shape)
     row_idx, col_idx = min_num_index[0], min_num_index[1]
 
-    print('Min value found = ', dist_mat[row_idx, col_idx])
+    # print('Min value found = ', dist_mat[row_idx, col_idx])
 
     '''We do this so that next time the same min number is not returned'''
     dist_mat[row_idx, col_idx] = float('inf')
@@ -97,7 +96,8 @@ def assign_cluster(index, cluster_index, dict):
 def only_1_point_in_cluster(x1_idx, x2_idx, d, cluster_dict, cluster_count):
     cluster_index = d[x1_idx]['cluster']
     cluster_dict[cluster_index] = cluster_dict[cluster_index] + cluster_dict[x2_idx]
-    cluster_dict[x2_idx] = []
+    # cluster_dict[x2_idx] = []
+    cluster_dict.pop(x2_idx, None)
     cluster_count -= 1
     assign_cluster(x2_idx, cluster_index, d)
     return cluster_count
@@ -113,7 +113,8 @@ def both_points_in_cluster(x1_idx, x2_idx, d, cluster_dict, cluster_count):
         for i in cluster_dict[cluster_index2]:
             assign_cluster(i, cluster_index1, d)
 
-        cluster_dict[cluster_index2] = []
+        # cluster_dict[cluster_index2] = []
+        cluster_dict.pop(cluster_index2, None)
         cluster_count -= 1
     else:
         """Edge case: Shortest distance is between points already in the same cluster"""
@@ -124,7 +125,8 @@ def both_points_in_cluster(x1_idx, x2_idx, d, cluster_dict, cluster_count):
 
 def both_points_not_in_cluster(x1_idx, x2_idx, d, cluster_dict, cluster_count):
     cluster_dict[x1_idx] = cluster_dict[x1_idx] + cluster_dict[x2_idx]
-    cluster_dict[x2_idx] = []
+    # cluster_dict[x2_idx] = []
+    cluster_dict.pop(x2_idx, None)
     cluster_count -= 1
 
     assign_cluster(x1_idx, x1_idx, d)
@@ -165,6 +167,18 @@ def create_cluster_foreach_data_point(input_data):
     return cluster_dict
 
 
+def get_user_choice():
+
+    choice = 0
+    acceptable_inputs = [1, 2, 3]
+
+    while choice not in acceptable_inputs:
+        print('\nChoose one of the following linkage types:\n1. Mean\n2. Single\n3. Complete')
+        choice = int(input())
+        print('You chose ', choice)
+
+    return choice
+
 def main():
 
     file_path = '../data/120_data_points.txt'
@@ -176,6 +190,8 @@ def main():
     dict = get_dict(input_data)
     cluster_dict = create_cluster_foreach_data_point(input_data)
 
+    choice = get_user_choice()
+
     '''Calculating Distance Matrix'''
     dist_mat = get_dist_mat(input_data)
 
@@ -183,11 +199,23 @@ def main():
     interested_clusters = [2, 4, 6, 8]
     interested_dict = {}
 
-    while cluster_count > 1:
+    if choice == 2:
+        while cluster_count > 1:
+            dist_mat, x_idx, y_idx = find_index_of_next_min(dist_mat)
+            dict, cluster_count = add_indexes_to_same_cluster(x_idx, y_idx, dict, cluster_dict, cluster_count)
+            if cluster_count in interested_clusters:
+                interested_dict[cluster_count] = cluster_dict.copy()
+
+    if choice == 3:
         dist_mat, x_idx, y_idx = find_index_of_next_min(dist_mat)
-        dict, cluster_count = add_indexes_to_same_cluster(x_idx, y_idx, dict, cluster_dict, cluster_count)
-        if cluster_count in interested_clusters:
-            interested_dict[cluster_count] = cluster_dict.copy()
+
+        while cluster_count > 1:
+            # for i in range(5):
+            dict, cluster_count = add_indexes_to_same_cluster(x_idx, y_idx, dict, cluster_dict, cluster_count)
+            if cluster_count in interested_clusters:
+                interested_dict[cluster_count] = cluster_dict.copy()
+
+            x_idx, y_idx = complete_linkage_next_point(dist_mat, cluster_dict)
 
     pass
     print('Finish')

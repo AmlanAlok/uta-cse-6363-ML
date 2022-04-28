@@ -185,7 +185,7 @@ def create_dist_mat_cluster_and_point(cluster_x1, cluster_x2, dist_mat):
     return data_index_1, data_index_2, max_distance
 
 
-def  complete_linkage_next_point(dist_mat, cluster_dict):
+def complete_linkage_next_point(dist_mat, cluster_dict):
 
     total_clusters = len(cluster_dict)
 
