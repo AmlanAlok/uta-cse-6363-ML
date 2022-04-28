@@ -145,9 +145,9 @@ def weighted_voting(closest_k_points, inverse_dist_index, label_index):
 def check_accuracy(prediction, y_label):
 
     size = prediction.shape[0]
-    mismatch = np.count_nonzero(prediction != y_label)
+    correct_predictions = np.count_nonzero(prediction == y_label)
 
-    accuracy = mismatch/size
+    accuracy = correct_predictions/size
     return accuracy
 
 
@@ -185,13 +185,10 @@ def add_index(x):
 
 def semi_supervised_learning(x_supervised, y_supervised, x_unsupervised, y_unsupervised, k_knn, k):
 
-    # start_x_unsupervised_size = x_unsupervised.shape[0]
     x_supervised = add_index(x_supervised)
     y_supervised = add_index(y_supervised)
     x_unsupervised = add_index(x_unsupervised)
 
-    pass
-    print('x')
     current_x_unsupervised_size = x_unsupervised.shape[0]
     current_x_unsupervised = x_unsupervised
     current_x_supervised = x_supervised
@@ -213,16 +210,41 @@ def semi_supervised_learning(x_supervised, y_supervised, x_unsupervised, y_unsup
             vote_diff_and_pred[j][0] = final_label
             vote_diff_and_pred[j][1] = voting_diff
 
-        # index_x_supervised = add_index(x_supervised)
-        # index_y_supervised = add_index(y_supervised)
+        '''Adding the prediction and vote difference to all unsupervised data'''
         combine_with_unsupervised = np.concatenate((current_x_unsupervised, vote_diff_and_pred), axis=1)
+        '''Choosing top k points with max vote_diff'''
         chosen_points = combine_with_unsupervised[combine_with_unsupervised[:, vote_diff_index].argsort()[::-1][:k]]
 
-        # xy_supervised_dist = xy_supervised_dist[xy_supervised_dist[:, dist_index].argsort()]
+        '''Updating supervised datasets'''
+        current_x_supervised = np.concatenate((current_x_supervised, chosen_points[:, :4]))
 
+        p = np.array([chosen_points[:, 0]]).transpose()
+        q = np.array([chosen_points[:, 4]]).transpose()
 
+        y_supervised_record = np.concatenate((p,q), axis=1)
+        # y_record_array = np.array([y_supervised_record])
+        y_record_array = y_supervised_record
+
+        current_y_supervised = np.concatenate((current_y_supervised, y_record_array))
+
+        '''deleting records from current_x_unsupervised which were moved to the supervised set'''
+        for t in range(chosen_points.shape[0]):
+            current_x_unsupervised = current_x_unsupervised[current_x_unsupervised[:, 0] != chosen_points[t][0]]
+
+        current_x_unsupervised_size = current_x_unsupervised.shape[0]
         pass
+        print('x')
+
+    '''collecting the unsupervised data predictions'''
+    unsupervised_y_prediction = current_y_supervised[20:, :]
+    unsupervised_y_prediction = unsupervised_y_prediction[unsupervised_y_prediction[:, 0].argsort()]
+
+    prediction = np.array([unsupervised_y_prediction[:, 1]]).transpose()
+    accuracy = check_accuracy(prediction, y_unsupervised)
+
     pass
+
+    return accuracy
 
 
 def main():
@@ -230,7 +252,8 @@ def main():
     partition = 20
     k_knn = 5
     # k_array = [1, 5, 100]
-    k_array = [1]
+    k_array = [1, 5, 10]
+    dict_ans = {}
     file_path = '../data/120_data_points.txt'
     training_input_data = get_input_data(file_path=file_path)
 
@@ -244,8 +267,9 @@ def main():
     only_supervised_approach(x_supervised, y_supervised, x_unsupervised, y_unsupervised, k_knn)
 
     for k in k_array:
-        semi_supervised_learning(x_supervised, y_supervised, x_unsupervised, y_unsupervised, k_knn, k)
-
+        accuracy = semi_supervised_learning(x_supervised, y_supervised, x_unsupervised, y_unsupervised, k_knn, k)
+        dict_ans[k] = accuracy
+        pass
 
     pass
 
