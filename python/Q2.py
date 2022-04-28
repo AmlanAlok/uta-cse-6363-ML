@@ -120,6 +120,9 @@ def semi_supervised_calc_distance_from_given_point(x_supervised, y_supervised, d
     return xy_supervised_dist, inverse_dist_index, label_index
 
 
+'''Q2 (a)'''
+
+
 def weighted_voting(closest_k_points, inverse_dist_index, label_index):
 
     size = closest_k_points.shape[0]
@@ -204,7 +207,7 @@ def semi_supervised_learning(x_supervised, y_supervised, x_unsupervised, y_unsup
 
             closest_k_points, inverse_dist_index, label_index = \
                 semi_supervised_calc_distance_from_given_point(current_x_supervised, current_y_supervised, current_x_unsupervised_dp[j], k_knn)
-            # closest_k_points = xy_supervised_dist[:k_knn, :]
+
             final_label, voting_diff = weighted_voting(closest_k_points, inverse_dist_index, label_index)
 
             vote_diff_and_pred[j][0] = final_label
@@ -221,9 +224,7 @@ def semi_supervised_learning(x_supervised, y_supervised, x_unsupervised, y_unsup
         p = np.array([chosen_points[:, 0]]).transpose()
         q = np.array([chosen_points[:, 4]]).transpose()
 
-        y_supervised_record = np.concatenate((p,q), axis=1)
-        # y_record_array = np.array([y_supervised_record])
-        y_record_array = y_supervised_record
+        y_record_array = np.concatenate((p,q), axis=1)
 
         current_y_supervised = np.concatenate((current_y_supervised, y_record_array))
 
@@ -232,8 +233,6 @@ def semi_supervised_learning(x_supervised, y_supervised, x_unsupervised, y_unsup
             current_x_unsupervised = current_x_unsupervised[current_x_unsupervised[:, 0] != chosen_points[t][0]]
 
         current_x_unsupervised_size = current_x_unsupervised.shape[0]
-        pass
-        print('x')
 
     '''collecting the unsupervised data predictions'''
     unsupervised_y_prediction = current_y_supervised[20:, :]
@@ -247,12 +246,16 @@ def semi_supervised_learning(x_supervised, y_supervised, x_unsupervised, y_unsup
     return accuracy
 
 
+'''Q2: Self-Training'''
+
+
 def main():
 
     partition = 20
     k_knn = 5
-    # k_array = [1, 5, 100]
-    k_array = [1, 5, 10]
+
+    '''number of data items that are being added to the labeled data set in each iteration'''
+    k_array = [1, 5, 10, 20, 25, 50, 100]
     dict_ans = {}
     file_path = '../data/120_data_points.txt'
     training_input_data = get_input_data(file_path=file_path)
@@ -264,14 +267,17 @@ def main():
     x_supervised, x_unsupervised = partition_input_data(input_data, partition)
     y_supervised, y_unsupervised = partition_label_data(y_label, partition)
 
-    only_supervised_approach(x_supervised, y_supervised, x_unsupervised, y_unsupervised, k_knn)
+    supervised_accuracy = only_supervised_approach(x_supervised, y_supervised, x_unsupervised, y_unsupervised, k_knn)
 
     for k in k_array:
         accuracy = semi_supervised_learning(x_supervised, y_supervised, x_unsupervised, y_unsupervised, k_knn, k)
         dict_ans[k] = accuracy
         pass
 
+    dict_ans['supervised_accuracy'] = supervised_accuracy
     pass
+    print(dict_ans)
+    print('Finish')
 
 
 if __name__ == "__main__":
