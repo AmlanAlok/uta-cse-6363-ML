@@ -36,7 +36,6 @@ def split_data(td):
     x = td[:, :3]
     y_label = td[:, 3]
     y = np.array([y_label])
-    # y = y.reshape((y.shape[1], y.shape[0]))
     y = y.transpose()
     return x, y
 
@@ -53,30 +52,30 @@ def partition_label_data(x, break_point):
     return supervised_data, unsupervised_data
 
 
-def get_distance(input_data, test_input):
-
-    a = [None]*len(input_data)
-    i = 0
-
-    for dp in input_data:
-        cartesian_distance = math.sqrt(
-            pow(dp['input']['height']-test_input['input']['height'], 2) +
-            pow(dp['input']['weight']-test_input['input']['weight'],2) +
-            pow(dp['input']['age']-test_input['input']['age'], 2))
-
-        a[i] = {
-            'index': dp['index'],
-            'cartesian_distance': cartesian_distance,
-            'output': dp['output']
-        }
-
-        i += 1
-
-    sorted_a = sorted(a, key=lambda d: d['cartesian_distance'])
-
-    # print(sorted_a)
-
-    return sorted_a
+# def get_distance(input_data, test_input):
+#
+#     a = [None]*len(input_data)
+#     i = 0
+#
+#     for dp in input_data:
+#         cartesian_distance = math.sqrt(
+#             pow(dp['input']['height']-test_input['input']['height'], 2) +
+#             pow(dp['input']['weight']-test_input['input']['weight'],2) +
+#             pow(dp['input']['age']-test_input['input']['age'], 2))
+#
+#         a[i] = {
+#             'index': dp['index'],
+#             'cartesian_distance': cartesian_distance,
+#             'output': dp['output']
+#         }
+#
+#         i += 1
+#
+#     sorted_a = sorted(a, key=lambda d: d['cartesian_distance'])
+#
+#     # print(sorted_a)
+#
+#     return sorted_a
 
 
 def calc_distance_from_given_point(x_supervised, y_supervised, dp):
@@ -86,6 +85,7 @@ def calc_distance_from_given_point(x_supervised, y_supervised, dp):
     dist_mat = np.full((supervised_size, 3), float('inf'))
     dist_index = 1
     inverse_dist_index = 2
+    label_index = 6
 
     for i in range(supervised_size):
         dist_mat[i][0] = i
@@ -96,21 +96,141 @@ def calc_distance_from_given_point(x_supervised, y_supervised, dp):
     xy_supervised_dist = np.concatenate((dist_mat, xy_supervised), axis=1)
     xy_supervised_dist = xy_supervised_dist[xy_supervised_dist[:, dist_index].argsort()]
     pass
-    return xy_supervised_dist
+    return xy_supervised_dist, inverse_dist_index, label_index
 
 
-def only_supervised_approach(x_supervised, y_supervised, x_unsupervised, y_unsupervised):
+def semi_supervised_calc_distance_from_given_point(x_supervised, y_supervised, dp, k_knn):
 
-    for dp in x_unsupervised:
-        # print(dp)
-        xy_supervised_dist = calc_distance_from_given_point(x_supervised, y_supervised, dp)
+    xy_supervised = np.concatenate((x_supervised[:, 1:], y_supervised[:, 1:]), axis=1)
+    supervised_size = xy_supervised.shape[0]
+    dist_mat = np.full((supervised_size, 3), float('inf'))
+    dist_index = 1
+    inverse_dist_index = 2
+    label_index = 6
+    x_supervised_dp = x_supervised[:, 1:]
+    for i in range(supervised_size):
+        dist_mat[i][0] = i
+        d = np.linalg.norm(x_supervised_dp[i] - dp)
+        dist_mat[i][dist_index] = d
+        dist_mat[i][inverse_dist_index] = 1/d
 
+    xy_supervised_dist = np.concatenate((dist_mat, xy_supervised), axis=1)
+    xy_supervised_dist = xy_supervised_dist[xy_supervised_dist[:, inverse_dist_index].argsort()[::-1][:k_knn]]
+    pass
+    return xy_supervised_dist, inverse_dist_index, label_index
+
+
+def weighted_voting(closest_k_points, inverse_dist_index, label_index):
+
+    size = closest_k_points.shape[0]
+    w_vote, m_vote = 0, 0
+
+    for i in range(size):
+
+        if closest_k_points[i][label_index] == 1:
+            w_vote += closest_k_points[i][inverse_dist_index]
+        if closest_k_points[i][label_index] == 0:
+            m_vote += closest_k_points[i][inverse_dist_index]
+
+    if w_vote > m_vote:
+        final_label = 1
+        vote_diff = w_vote - m_vote
+    else:
+        final_label = 0
+        vote_diff = m_vote - w_vote
+
+    return final_label, vote_diff
+
+
+def check_accuracy(prediction, y_label):
+
+    size = prediction.shape[0]
+    mismatch = np.count_nonzero(prediction != y_label)
+
+    accuracy = mismatch/size
+    return accuracy
+
+
+def only_supervised_approach(x_supervised, y_supervised, x_unsupervised, y_unsupervised, k_knn):
+
+    x_unsupervised_size = x_unsupervised.shape[0]
+    # vote_diff = np.full((x_unsupervised_size, 1), -1)
+    prediction = np.full((x_unsupervised_size, 1), -1)
+
+    for i in range(x_unsupervised_size):
+        xy_supervised_dist, inverse_dist_index, label_index = \
+            calc_distance_from_given_point(x_supervised, y_supervised, x_unsupervised[i])
+        closest_k_points = xy_supervised_dist[:k_knn, :]
+        final_label, voting_diff = weighted_voting(closest_k_points, inverse_dist_index, label_index)
+        prediction[i][0] = final_label
+        pass
+
+    accuracy = check_accuracy(prediction, y_unsupervised)
+
+    return accuracy
+
+
+def add_index(x):
+
+    size = x.shape[0]
+    s_array = np.full((size, 1), -1)
+
+    for i in range(size):
+        s_array[i][0] = i
+
+    joined = np.concatenate((s_array, x), axis=1)
+
+    return joined
+
+
+def semi_supervised_learning(x_supervised, y_supervised, x_unsupervised, y_unsupervised, k_knn, k):
+
+    # start_x_unsupervised_size = x_unsupervised.shape[0]
+    x_supervised = add_index(x_supervised)
+    y_supervised = add_index(y_supervised)
+    x_unsupervised = add_index(x_unsupervised)
+
+    pass
+    print('x')
+    current_x_unsupervised_size = x_unsupervised.shape[0]
+    current_x_unsupervised = x_unsupervised
+    current_x_supervised = x_supervised
+    current_y_supervised = y_supervised
+
+    while current_x_unsupervised_size > 0:
+
+        vote_diff_and_pred = np.full((current_x_unsupervised_size, 2), -1.0)
+        vote_diff_index = 5
+        current_x_unsupervised_dp = current_x_unsupervised[:, 1:]
+
+        for j in range(current_x_unsupervised_size):
+
+            closest_k_points, inverse_dist_index, label_index = \
+                semi_supervised_calc_distance_from_given_point(current_x_supervised, current_y_supervised, current_x_unsupervised_dp[j], k_knn)
+            # closest_k_points = xy_supervised_dist[:k_knn, :]
+            final_label, voting_diff = weighted_voting(closest_k_points, inverse_dist_index, label_index)
+
+            vote_diff_and_pred[j][0] = final_label
+            vote_diff_and_pred[j][1] = voting_diff
+
+        # index_x_supervised = add_index(x_supervised)
+        # index_y_supervised = add_index(y_supervised)
+        combine_with_unsupervised = np.concatenate((current_x_unsupervised, vote_diff_and_pred), axis=1)
+        chosen_points = combine_with_unsupervised[combine_with_unsupervised[:, vote_diff_index].argsort()[::-1][:k]]
+
+        # xy_supervised_dist = xy_supervised_dist[xy_supervised_dist[:, dist_index].argsort()]
+
+
+        pass
     pass
 
 
 def main():
 
     partition = 20
+    k_knn = 5
+    # k_array = [1, 5, 100]
+    k_array = [1]
     file_path = '../data/120_data_points.txt'
     training_input_data = get_input_data(file_path=file_path)
 
@@ -121,8 +241,12 @@ def main():
     x_supervised, x_unsupervised = partition_input_data(input_data, partition)
     y_supervised, y_unsupervised = partition_label_data(y_label, partition)
 
-    # y_supervised.reshape((20,1))
-    only_supervised_approach(x_supervised, y_supervised, x_unsupervised, y_unsupervised)
+    only_supervised_approach(x_supervised, y_supervised, x_unsupervised, y_unsupervised, k_knn)
+
+    for k in k_array:
+        semi_supervised_learning(x_supervised, y_supervised, x_unsupervised, y_unsupervised, k_knn, k)
+
+
     pass
 
 
