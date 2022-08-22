@@ -24,6 +24,9 @@ def get_input_data(file_path):
     return training_input_data
 
 
+""" Replaces actual labels with numeric labels """
+
+
 def add_numeric_labels(td):
     y_data_points = td[:, 3]
     y_data = y_data_points.reshape(y_data_points.shape[0], 1)
@@ -68,6 +71,9 @@ def find_index_of_next_min(dist_mat):
     dist_mat[col_idx, row_idx] = float('inf')
 
     return dist_mat, row_idx, col_idx
+
+
+""" Creating dict of dict to manage cluster assignment of each data point"""
 
 
 def get_dict(input_data):
