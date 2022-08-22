@@ -45,6 +45,9 @@ def split_data(td):
     return x, y_label
 
 
+"""Creating distance matrix"""
+
+
 def get_dist_mat(a):
 
     b = a[:, None]          # doing this for broadcasting
@@ -157,6 +160,9 @@ def add_indexes_to_same_cluster(x1_idx, x2_idx, d, cluster_dict, cluster_count):
         pass
 
     return d, cluster_count
+
+
+"""Each data point is assumed to be independent and considered an individual cluster at the beginning"""
 
 
 def create_cluster_foreach_data_point(input_data):
@@ -369,6 +375,15 @@ def get_acuracy(interested_clusters, interested_dict, y_label):
     pass
 
     return accuracy_dict
+
+
+"""
+1. Read data
+2. Assign numeric labels
+3. Split data into X, Y
+4. Used dict for tracking changes
+5. created distance matrix
+"""
 
 
 def main():
