@@ -368,10 +368,10 @@ def main():
 
     '''Q1 Part B'''
 
-    training_filename = 'data/Q1_C_training.txt'
-    test_filename = 'data/Q1_C_test.txt'
-    # training_filename = '../../data/Q1_C_training.txt'
-    # test_filename = '../../data/Q1_C_test.txt'
+    # training_filename = 'data/Q1_C_training.txt'
+    # test_filename = 'data/Q1_C_test.txt'
+    training_filename = '../../data/Q1_C_training.txt'
+    test_filename = '../../data/Q1_C_test.txt'
 
     feature_indexes = [0, 1, 2]
     feature_dict = {
