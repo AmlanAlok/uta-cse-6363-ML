@@ -87,11 +87,16 @@ def calc_distance_from_given_point(x_supervised, y_supervised, dp):
     inverse_dist_index = 2
     label_index = 6
 
+    """
+    dist_mat => 0 = dp index, 1 => distance from test dp, 2 => inverse distance from test dp
+    """
+
     for i in range(supervised_size):
         dist_mat[i][0] = i
         d = np.linalg.norm(x_supervised[i] - dp)
         dist_mat[i][dist_index] = d
         dist_mat[i][inverse_dist_index] = 1/d
+
 
     xy_supervised_dist = np.concatenate((dist_mat, xy_supervised), axis=1)
     xy_supervised_dist = xy_supervised_dist[xy_supervised_dist[:, dist_index].argsort()]
@@ -148,7 +153,7 @@ def weighted_voting(closest_k_points, inverse_dist_index, label_index):
 def check_accuracy(prediction, y_label):
 
     size = prediction.shape[0]
-    correct_predictions = np.count_nonzero(prediction == y_label)
+    correct_predictions = np.count_nonzero(prediction == y_label)   # gives the number of correct matches
 
     accuracy = correct_predictions/size
     return accuracy
@@ -163,6 +168,7 @@ def only_supervised_approach(x_supervised, y_supervised, x_unsupervised, y_unsup
     for i in range(x_unsupervised_size):
         xy_supervised_dist, inverse_dist_index, label_index = \
             calc_distance_from_given_point(x_supervised, y_supervised, x_unsupervised[i])
+        '''Choosing the k closest points'''
         closest_k_points = xy_supervised_dist[:k_knn, :]
         final_label, voting_diff = weighted_voting(closest_k_points, inverse_dist_index, label_index)
         prediction[i][0] = final_label
