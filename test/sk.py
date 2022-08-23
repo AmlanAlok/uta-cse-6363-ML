@@ -1,5 +1,5 @@
 import unittest
-from python.Q1_B import *
+from python.Q1 import *
 from sklearn.cluster import AgglomerativeClustering
 
 
@@ -35,6 +35,20 @@ class MyTestCase(unittest.TestCase):
         clustering = AgglomerativeClustering(linkage='average', n_clusters=2).fit(X)
         pass
 
+    def test_hey(self):
+
+        x = [2,3,4]
+        y = [2,3,4]
+        # a = [[1],[0],[1]]
+        # b = [[1],[0],[1]]
+
+        a = np.array([[1], [0], [1]])
+        b = np.array([[1], [1], [1]])
+        c = np.count_nonzero(x == y)
+        print(c)
+        print(a==b)
+        d = np.count_nonzero(a == b)    # counts number of TRUEs
+        print(d)
 
 if __name__ == '__main__':
     unittest.main()
