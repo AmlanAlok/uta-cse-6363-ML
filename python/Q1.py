@@ -398,7 +398,7 @@ def main():
     cluster_dict = create_cluster_foreach_data_point(input_data)
 
     # choice = get_user_choice()
-    choice = 3
+    choice = 1
 
     '''Calculating Distance Matrix'''
     dist_mat = get_dist_mat(input_data)
