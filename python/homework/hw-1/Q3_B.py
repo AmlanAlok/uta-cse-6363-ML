@@ -9,7 +9,8 @@ filename = input('Enter filename from the data directory\n'
 
 if filename == '':
     filename = 'Q2_A.txt'
-file_path = 'python/homework/hw-1/data/' + filename
+# file_path = 'python/homework/hw-1/data/' + filename
+file_path = 'data/' + filename
 
 input_data = fetch_data(file_path)
 print('------------------------------')

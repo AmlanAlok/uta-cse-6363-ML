@@ -8,7 +8,8 @@ filename = input('Enter filename from the data directory\n'
 
 if filename == '':
     filename = 'Q2_A.txt'
-file_path = 'python/homework/hw-1/data/' + filename
+# file_path = 'python/homework/hw-1/data/' + filename
+file_path = 'data/' + filename
 
 input_data = fetch_data(file_path)
 
@@ -35,6 +36,7 @@ test_input_record = {
     'output': []
 }
 
+'''This gives the cartesian distance from the test dp'''
 distance_array = get_distance(input_data, test_input_record)
 
 test_input_record = make_prediction(k_list, distance_array, test_input_record)

@@ -1,6 +1,7 @@
 from Q2_my_functions import *
 
-filename = 'python/homework/hw-1/data/Q2_C.txt'
+# filename = 'python/homework/hw-1/data/Q2_C.txt'
+filename = 'data/Q2_C.txt'
 
 input_data = fetch_data(filename)
 k_list = [1, 3, 5]
