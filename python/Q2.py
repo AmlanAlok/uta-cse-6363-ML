@@ -116,8 +116,8 @@ def main():
 
     training_size = [20, 129]   # max = 129
 
-    # filename = '../datasets/Q1_c_test_data.txt'
-    filename = 'datasets/Q1_c_test_data.txt'
+    filename = '../datasets/Q1_c_test_data.txt'
+    # filename = 'datasets/Q1_c_test_data.txt'
     test_data = fetch_data(filename)
     x_test, y_true = separate_input_output(test_data)
     line_names = []
