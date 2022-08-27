@@ -82,8 +82,8 @@ def train_and_prediction(x, gamma, size):
 
     query_point = x
 
-    # filename = '../datasets/Q1_b_training_data.txt'
-    filename = 'datasets/Q1_b_training_data.txt'
+    filename = '../datasets/Q1_b_training_data.txt'
+    # filename = 'datasets/Q1_b_training_data.txt'
     input_data = fetch_data(filename)
     x_data, y_data = separate_input_output_limit(input_data, size)
 
