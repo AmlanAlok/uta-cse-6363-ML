@@ -149,8 +149,8 @@ def main():
 
     plt.title('Locally Weighted Linear Regression')
     plt.legend(line_names)
-    # plt.savefig('./Q2/Q2-LWLR')
-    plt.savefig('python/Q2/Q2-LWLR')
+    plt.savefig('./Q2/Q2-LWLR')
+    # plt.savefig('python/Q2/Q2-LWLR')
 
     # plt.show()
     # plt.close()
