@@ -107,7 +107,6 @@ def train(alpha, iterations):
     # print(parameter_matrix)
 
     ax = plt.axes(projection='3d')
-
     ax.scatter3D(height_data, weight_data, age_data)
 
     ax.set_xlabel('Height')
