@@ -112,8 +112,8 @@ def train(alpha, iterations):
     ax.set_xlabel('Height')
     ax.set_ylabel('Weight')
     ax.set_zlabel('Age')
-    # plt.savefig('./Q3/Q3_plot')
-    plt.savefig('python/Q3/Q3_plot')
+    plt.savefig('./Q3/Q3_plot')
+    # plt.savefig('python/Q3/Q3_plot')
     plt.show()
 
     return parameter_matrix
