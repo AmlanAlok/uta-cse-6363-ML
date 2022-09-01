@@ -391,8 +391,8 @@ def main():
     '''sol part B'''
 
     # filename = 'datasets/Q1_b_training_data.txt'
-    # training_filename = '../../data/Q1_A.txt'
-    training_filename = 'data/Q1_A.txt'
+    training_filename = '../../data/Q1_A.txt'
+    # training_filename = 'data/Q1_A.txt'
 
     feature_indexes = [0, 1, 2]
     feature_dict = {
