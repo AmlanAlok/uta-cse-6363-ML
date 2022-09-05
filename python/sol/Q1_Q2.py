@@ -308,8 +308,12 @@ def question_2(training_input_data, test_input_data, feature_indexes, feature_di
 
     ''' Q2  '''
 
+    '''Apply bagging 10, 50, and 100 times to the training data'''
     bagging_array = [10, 50, 100]
     print('\nQ2 - BAGGING - Size =', bagging_array)
+
+    '''chose a decision tree depth that does not overfit but achieves some base line classication performance 
+    but at least depth 4 '''
     chosen_depth = 4
     print('Chosen tree depth =', chosen_depth)
 
@@ -320,8 +324,13 @@ def question_2(training_input_data, test_input_data, feature_indexes, feature_di
 
         bagging_tree_dict = {}
 
-        '''iterating through each k value'''
+        '''iterating through each k values and creating k number of decision trees classifiers'''
         for i in range(1, bag_count + 1):
+            '''
+            np.random.choice(5, 3)
+            array([0, 3, 4])
+            -> first parameter 5 gives range 0-4 and 2nd parameter chooses 3 random values from this range
+            '''
             random_indices = np.random.choice(training_input_data.shape[0], training_input_data.shape[0])
             random_training_dataset = training_input_data[random_indices]
 
@@ -344,6 +353,7 @@ def question_2(training_input_data, test_input_data, feature_indexes, feature_di
             m_count = len(classifier_outputs[classifier_outputs == 0])
             w_count = len(classifier_outputs[classifier_outputs == 1])
 
+            '''Majority voting'''
             if m_count > w_count:
                 y_array.append(0)
             else:
