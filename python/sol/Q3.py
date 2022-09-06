@@ -367,6 +367,12 @@ def get_error(rootNode, total_w, input_data):
 
         err_num += dp_weight * (1 - delta)
 
+    '''
+    Gives the fraction of the weights of the data points we got wrong.
+    We are not counting number of data points we got wrong.
+    We are counting how much importance we got wrong.
+    So, em is the error of my mth classifier.
+    '''
     em = err_num/total_w
 
     return em
@@ -437,6 +443,7 @@ def question_3(training_input_data, test_input_data, feature_indexes, feature_di
     em_array = []
     am_array = []
 
+    '''All training data points are assigned equal weights at the beginning'''
     equal_weighted_training_data = add_equal_weights(training_input_data)
 
     for ada_count in adaboost_array:
@@ -452,8 +459,9 @@ def question_3(training_input_data, test_input_data, feature_indexes, feature_di
                                      chosen_depth)
             adaboost_tree_dic[i] = rootNode
 
-            total_w = np.sum(weighted_training_data[:, 4])
+            total_w = np.sum(weighted_training_data[:, 4])  # calculating total weight
 
+            '''Gives the fraction of the weights of the data points we got wrong. '''
             em = get_error(rootNode, total_w, weighted_training_data)
 
             ''' Disabling this to get output'''
@@ -462,12 +470,17 @@ def question_3(training_input_data, test_input_data, feature_indexes, feature_di
             #     stop = True       # commented to get outputs
             #     break
 
-            right_to_wrong_ratio = (1-em)/em
+            '''Calculating classifier weight'''
+            right_to_wrong_ratio = (1-em)/em    # the bigger this fraction gets, the more important I am
             am = (1/2) * np.log(right_to_wrong_ratio)
 
             em_array.append(em)
             am_array.append(am)
 
+            '''
+            We want to increase the weights of the things we got wrong
+            We want to decrease the weights of the things we got right
+            '''
             weighted_training_data = adjust_weights(rootNode, weighted_training_data, am)
 
         if not stop:
@@ -479,11 +492,11 @@ def question_3(training_input_data, test_input_data, feature_indexes, feature_di
 
 def main():
 
-    training_filename = 'data/Q1_C_training.txt'
-    test_filename = 'data/Q1_C_test.txt'
+    # training_filename = 'data/Q1_C_training.txt'
+    # test_filename = 'data/Q1_C_test.txt'
 
-    # training_filename = '../../data/Q1_C_training.txt'
-    # test_filename = '../../data/Q1_C_test.txt'
+    training_filename = '../../data/Q1_C_training.txt'
+    test_filename = '../../data/Q1_C_test.txt'
 
     feature_indexes = [0, 1, 2]
     feature_dict = {
