@@ -47,7 +47,6 @@ def gaussian_formula(mean, var, test_parameter):
     pi = math.pi
     e = math.e
     r = (1/math.sqrt(2*pi*var)) * pow(e, (-1*pow(test_parameter-mean, 2))/(2*var))
-    # print('gaussian output =', r)
     return r
 
 
