@@ -191,7 +191,12 @@ def get_next_node(feature_indexes, input_data, feature_dict, depth, allowed_dept
 
         count_array.append(count)
 
+    '''
+    Finding the index where highest value of gain ratio exists
+    This index also tells us which feature will be chosen next
+    '''
     best_gain_ratio_index = best_gain_ratio_across_features.index(max(best_gain_ratio_across_features))
+
     best_gain_ratio = best_gain_ratio_across_features[best_gain_ratio_index]
     best_threshold = best_threshold_across_features[best_gain_ratio_index]
     split_point = count_array[best_gain_ratio_index]
@@ -312,7 +317,7 @@ def question_2(training_input_data, test_input_data, feature_indexes, feature_di
     bagging_array = [10, 50, 100]
     print('\nQ2 - BAGGING - Size =', bagging_array)
 
-    '''chose a decision tree depth that does not overfit but achieves some base line classication performance 
+    '''chose a decision tree depth that does not overfit but achieves some base line classification performance 
     but at least depth 4 '''
     chosen_depth = 4
     print('Chosen tree depth =', chosen_depth)

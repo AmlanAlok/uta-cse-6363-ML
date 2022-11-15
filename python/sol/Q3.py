@@ -317,6 +317,7 @@ def add_equal_weights(training_input_data):
 
     w = 1/s
 
+    # Assume classes as 1 and -1. Usually two classes are labeled as 0 and 1. So change the 0 to -1.
     for i in range(s):
         if training_input_data[i, 3] == 0:
             training_input_data[i, 3] = -1
@@ -324,9 +325,9 @@ def add_equal_weights(training_input_data):
     weight_arr = np.full(s, w)
     weight_arr_col = weight_arr.reshape(weight_arr.shape[0], 1)
 
-    new_trainging = np.concatenate((training_input_data, weight_arr_col), axis=1)
+    new_training = np.concatenate((training_input_data, weight_arr_col), axis=1)
     pass
-    return new_trainging
+    return new_training
 
 
 def find_mismatch(input_data, rootNode):
@@ -357,14 +358,15 @@ def get_error(rootNode, total_w, input_data):
         y_label = input_data[i, 3]
 
         if y_label == y_predict:
-            delta = 1
+            delta = 1               # if prediction matches
         else:
-            delta = 0
+            delta = 0               # if prediction does not match
 
         top.append(delta)
 
         dp_weight = input_data[i, 4]
 
+        ''' adds all the weights for the data points which were incorrectly predicted'''
         err_num += dp_weight * (1 - delta)
 
     '''
@@ -435,7 +437,7 @@ def adaboost_accuracy(adaboost_tree_dic, am_array, ada_count, test_input_data):
 
 def question_3(training_input_data, test_input_data, feature_indexes, feature_dict, starting_depth):
 
-    adaboost_array = [10, 25, 50, 100]
+    adaboost_array = [10, 25, 50]
     print('adaboost_array =', adaboost_array)
     chosen_depth = 4
     print('Chosen tree depth =', chosen_depth)
@@ -461,7 +463,11 @@ def question_3(training_input_data, test_input_data, feature_indexes, feature_di
 
             total_w = np.sum(weighted_training_data[:, 4])  # calculating total weight
 
-            '''Gives the fraction of the weights of the data points we got wrong. '''
+            '''
+            Gives the fraction of the weights of the data points we got wrong. 
+            Or Adds the weights of the data points which were incorrectly predicted
+            Em represents Error of the mth classifier
+            '''
             em = get_error(rootNode, total_w, weighted_training_data)
 
             ''' Disabling this to get output'''
